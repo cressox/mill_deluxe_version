@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.Border;
-import java.awt.*;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -62,7 +60,6 @@ public class Muehle{
 
     void start_game(Muehle m){
         boolean game_is_running = true; // if game is over it switches to false
-        draw_field(m);
         setStage(1);
     }
 
@@ -293,8 +290,6 @@ public class Muehle{
             c.getLabel().setIcon(null);
         }
 
-
-
         if (color.equals("white")){
             URL imgSmartURL = this.getClass().getResource("brett_gewinn_white.png");
             ImageIcon bg = new ImageIcon(imgSmartURL);
@@ -310,208 +305,9 @@ public class Muehle{
                 Client.send_data("method:win, player:" + "black");
             }
         }
-
-
-
-        //        System.out.println("Congrats "+ p.getColor() +" you won the game!");
-    }
-
-    public void draw_field(Muehle m){
-        int WIDTH = 720;
-        int HEIGHT = 720;
-
-        URL imgSmartURL = this.getClass().getResource("muehle_brett_mit_punkten.png");
-        ImageIcon bg = new ImageIcon(imgSmartURL);
-        MAIN_LABEL.setOpaque(true);
-        MAIN_LABEL.setBackground(new Color(233, 220, 211));
-        MAIN_LABEL.setIcon(bg);
-
-        Border border = BorderFactory.createLineBorder(Color.BLACK, 1);     //determines frames
-
-        abbruch.setBounds(10, 650, 100, 20);
-        abbruch.setBorder(border);
-        abbruch.setText("Aufgeben");
-        abbruch.setVisible(true);
-        MyMouseListener ml = new MyMouseListener(abbruch, p1.getColor(), this);
-        abbruch.addMouseListener(ml);
-
-        neustart.setBounds(10, 625, 100, 20);
-        neustart.setBorder(border);
-        neustart.setText("Neustart");
-        neustart.setVisible(false);
-        MyMouseListener ml_nst = new MyMouseListener(neustart, p1.getColor(), this);
-        neustart.addMouseListener(ml_nst);
-
-        //building infolabels
-        label_p1.setBounds(WIDTH+10, 50,150,200);
-        label_p1.setBorder(border);
-        label_p1.setText("Player black has:\n9 stones left to set");
-        label_p2.setBounds(WIDTH+10, 280,150,200);
-        label_p2.setBorder(border);
-        label_p2.setText("Player white has:\n9 stones left to set");
-        label_cp.setBounds(WIDTH+10, 510, 150, 30);
-        label_cp.setBorder(border);
-        label_cp.setText("Player " + p1.getColor() + " its your turn");
-        info.setBounds(WIDTH+10, 540,150,100);
-        info.setBorder(border);
-        info.setText("What's to do?");
-
-        label_cp.setLineWrap(true);
-        label_p2.setLineWrap(true);
-        label_p2.setLineWrap(true);
-        info.setLineWrap(true);
-
-        label_cp.setEditable(false);
-        label_p1.setEditable(false);
-        label_p2.setEditable(false);
-        info.setEditable(false);
-
-        frame.getContentPane();
-        frame.setSize(WIDTH+200, HEIGHT);
-
-        int w = frame.getWidth();
-        int h = frame.getHeight();
-        int lh = 50;                                    //height of label set to 50px
-        int lw = 50;                                    //width of label set to 50px
-
-        init_cells(m, WIDTH, HEIGHT);
-
-        for(int i = 0; i<=23; i++){
-            MAIN_LABEL.add(cells[i].getLabel());
-//            cells[i].getLabel().setOpaque(true);
-//            cells[i].getLabel().setBorder(border);      //draws frame for every cell, needed for orientation
-//            cells[i].getLabel().setBackground(new Color(233, 220, 211));
-        }
-        MAIN_LABEL.add(abbruch);
-        MAIN_LABEL.add(neustart);
-        MAIN_LABEL.add(label_p1);
-        MAIN_LABEL.add(label_p2);
-        MAIN_LABEL.add(label_cp);
-        MAIN_LABEL.add(info);
-        MAIN_LABEL.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.add(MAIN_LABEL);
-        frame.setVisible(true);
-    }
-
-    public void init_cells(Muehle m, int w, int h){
-        for (int i = 0; i < 24; i++){ // initialise cells as objects in the field cells
-            cells[i] = new Cell(i, m); //this
-        }
-
-        for (int i = 0; i <= 23; i++){ // nur temporär um zellen zu identifizieren
-            // cells[i].getLabel().setText(String.valueOf(i));
-            MyMouseListener tmp_ml = new MyMouseListener(cells[i].getLabel(), cells[i], i, p1.getColor());
-            cells[i].getLabel().addMouseListener(tmp_ml); // make labels clickable
-        }
-
-        set_neighbors_of_cells();
-        set_cells_in_interface(w, h);
-        set_lines_of_cells();
-    }
-
-    private static void set_cells_in_interface(int w, int h){
-        int x = 10;
-        int y = -20;
-        int lw = 50;
-        int lh = 50;
-        cells[0].getLabel().setBounds(x+70, y+70,lw, lh);
-        cells[1].getLabel().setBounds(x+(w/2)-(lw/2), y+70, lw, lh);
-        cells[2].getLabel().setBounds(x+(w-70)-(lw), y+70,lw, lh);
-        cells[3].getLabel().setBounds(x+(w/4)-(lw/2), y+(h/4)-(lh/2), lw, lh);
-        cells[4].getLabel().setBounds(x+(w/2)-(lw/2), y+(h/4)-(lh/2), lw, lh);
-        cells[5].getLabel().setBounds(x+(3*w/4)-(lw/2), y+(h/4)-(lh/2), lw, lh);
-        cells[6].getLabel().setBounds(x+(3*w/8)-(lw/2), y+(3*h/8)-(lh/2), lw, lh);
-        cells[7].getLabel().setBounds(x+(w/2)-(lw/2), y+(3*h/8)-(lh/2), lw, lh);
-        cells[8].getLabel().setBounds(x+(5*w/8)-(lw/2), y+(3*h/8)-(lh/2), lw, lh);
-        cells[9].getLabel().setBounds(x+70, y+(h/2)-(lh/2), lw, lh);
-        cells[10].getLabel().setBounds(x+(w/4)-(lw/2), y+(h/2)-(lh/2), lw, lh);
-        cells[11].getLabel().setBounds(x+(3*w/8)-(lw/2), y+(h/2)-(lh/2), lw, lh);
-        cells[12].getLabel().setBounds(x+(5*w/8)-(lw/2), y+(h/2)-(lh/2), lw, lh);
-        cells[13].getLabel().setBounds(x+(3*w/4)-(lw/2), y+(h/2)-(lh/2), lw, lh);
-        cells[14].getLabel().setBounds(x+(w-70)-(lw), y+(h/2)-(lh/2), lw, lh);
-        cells[15].getLabel().setBounds(x+(3*w/8)-(lw/2), y+(5*h/8)-(lh/2), lw, lh);
-        cells[16].getLabel().setBounds(x+(w/2)-(lw/2), y+(5*h/8)-(lh/2), lw, lh);
-        cells[17].getLabel().setBounds(x+(5*w/8)-(lw/2), y+(5*h/8)-(lh/2), lw, lh);
-        cells[18].getLabel().setBounds(x+(w/4)-(lw/2), y+(3*h/4)-(lh/2), lw, lh);
-        cells[19].getLabel().setBounds(x+(w/2)-(lw/2), y+(3*h/4)-(lh/2), lw, lh);
-        cells[20].getLabel().setBounds(x+(3*w/4)-(lw/2), y+(3*h/4)-(lh/2), lw, lh);
-        cells[21].getLabel().setBounds(x+70, (h-90)-(lh/2)+y, lw, lh);
-        cells[22].getLabel().setBounds(x+(w/2)-(lw/2), y+(h-90)-(lh/2), lw, lh);
-        cells[23].getLabel().setBounds(x+(w-70)-(lw), y+(h-90)-(lh/2), lw, lh);
-    }
-
-    private static void set_neighbors_of_cells(){
-        cells[0].setNeighbors(new int[]{1, 9});
-        cells[1].setNeighbors(new int[]{0, 2, 4});
-        cells[2].setNeighbors(new int[]{1, 14});
-        cells[3].setNeighbors(new int[]{4, 10});
-        cells[4].setNeighbors(new int[]{1, 3, 5, 7});
-        cells[5].setNeighbors(new int[]{4, 13});
-        cells[6].setNeighbors(new int[]{7, 11});
-        cells[7].setNeighbors(new int[]{4, 6, 8});
-        cells[8].setNeighbors(new int[]{7, 12});
-        cells[9].setNeighbors(new int[]{0, 10, 21});
-        cells[10].setNeighbors(new int[]{3, 9, 11, 18});
-        cells[11].setNeighbors(new int[]{6, 10, 15});
-        cells[12].setNeighbors(new int[]{8, 13, 17});
-        cells[13].setNeighbors(new int[]{5, 12, 14, 20});
-        cells[14].setNeighbors(new int[]{2, 13, 23});
-        cells[15].setNeighbors(new int[]{11, 16});
-        cells[16].setNeighbors(new int[]{15, 17, 19});
-        cells[17].setNeighbors(new int[]{12, 16});
-        cells[18].setNeighbors(new int[]{10, 19});
-        cells[19].setNeighbors(new int[]{16, 18, 20, 22});
-        cells[20].setNeighbors(new int[]{13, 19});
-        cells[21].setNeighbors(new int[]{9, 22});
-        cells[22].setNeighbors(new int[]{19, 21, 23});
-        cells[23].setNeighbors(new int[]{14, 22});
-    }
-
-    private static void set_lines_of_cells(){
-        cells[0].setLines(new String[]{"a", "d"});
-        cells[1].setLines(new String[]{"a", "m"});
-        cells[2].setLines(new String[]{"a", "b"});
-        cells[3].setLines(new String[]{"e", "h"});
-        cells[4].setLines(new String[]{"e", "m"});
-        cells[5].setLines(new String[]{"e", "f"});
-        cells[6].setLines(new String[]{"i", "l"});
-        cells[7].setLines(new String[]{"i", "m"});
-        cells[8].setLines(new String[]{"i", "j"});
-        cells[9].setLines(new String[]{"d", "p"});
-        cells[10].setLines(new String[]{"h", "p"});
-        cells[11].setLines(new String[]{"l", "p"});
-        cells[12].setLines(new String[]{"j", "n"});
-        cells[13].setLines(new String[]{"f", "n"});
-        cells[14].setLines(new String[]{"b", "n"});
-        cells[15].setLines(new String[]{"k", "l"});
-        cells[16].setLines(new String[]{"k", "o"});
-        cells[17].setLines(new String[]{"j", "k"});
-        cells[18].setLines(new String[]{"g", "h"});
-        cells[19].setLines(new String[]{"g", "o"});
-        cells[20].setLines(new String[]{"f", "g"});
-        cells[21].setLines(new String[]{"c", "d"});
-        cells[22].setLines(new String[]{"c", "o"});
-        cells[23].setLines(new String[]{"c", "b"});
-    }
-
-
-//    void switch_player(){
-//        if (getCurrent_player() == getP1()){
-//            setCurrent_player(getP2());
-//            setNext_player(getP1());
-//        } else {
-//            setCurrent_player(getP1());
-//            setNext_player(getP2());
-//        }
-//    }
-
-    void close_game(){
-        MAIN_LABEL.removeAll();
     }
 
     boolean is_in_neigbors(Cell cell_to_check, Cell cell){
-//        for (Cell c : cells) System.out.println(c);
         for (int tmp_neigbor : cell.getNeighbors()){ // schaut alle nachbarn von cell_to_check an
             if (cell_to_check != null){
                 if (tmp_neigbor == cell_to_check.getId()) { // cell_to_chek ist in nachbarn mit drin

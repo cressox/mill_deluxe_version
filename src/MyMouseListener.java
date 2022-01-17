@@ -1,24 +1,18 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class MyMouseListener implements MouseListener {
     private JLabel label;
     private Cell cell;
-    private int id;
-    private String color;
-    private Muehle mill;
 
-    public MyMouseListener(JLabel label, Cell cell, int id, String color) {
+    public MyMouseListener(JLabel label, Cell cell){
         this.label = label;
         this.cell = cell;
-        this.id = id;
-        this.color = color;
     }
-    public MyMouseListener(JLabel label, String color, Muehle mill){
+    public MyMouseListener(JLabel label){
         this.label = label;
-        this.color = color;
-        this.mill = mill;
     }
 
     @Override
@@ -28,52 +22,26 @@ public class MyMouseListener implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        if (cell != null){
-            if (cell.getStone()!=null){
-                cell.getStone().getPlayer().selectStone(cell, false);
-            }
-        }
+        // red circle //
+        Color c = new Color(255,255,255);
+        label.setBackground(c);
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        if (cell != null){
-            if (cell.getStone()!=null){
-                cell.getStone().getPlayer().selectStone(cell, true);
-            }
-        }
+        // red circle //
+        Color c = new Color(0,0,0);
+        label.setBackground(c);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (label.getText().equals("Aufgeben")){
-            Client.send_data("method:aufgeben, player:" + (color.equals("white") ? "black" : "white"));
-            mill.getNeustart().setVisible(true);
-        }
-        else if (label.getText().equals("Neustart")){
-            mill.close_game();
-            mill.start_game(mill);
-            Client.send_data("method:neustart, player:" + (color.equals("white") ? "black" : "white"));
-        }
-        else if (!cell.getMill().isGameOver()) { // game needs to be running
-            if (cell.getMill().isMy_turn()) { // my turn
-                System.out.println("clicked" + cell.getMill().getStage());
-
-                int stage = cell.getMill().getStage();
-                if (stage == 1) cell.getMill().first_stage(cell);
-                else if (stage == 2) cell.getMill().second_stage(cell);
-                else if (stage == 3) {
-                    cell.getMill().third_stage(cell);
-                    cell.getMill().is_game_running();
-                }
-            }
-        }
-        else {
-            System.out.println("cant click game is over");
-        }
+        if (cell != null) System.out.println(cell.getId());
+        else System.out.println(label.getText());
     }
 }

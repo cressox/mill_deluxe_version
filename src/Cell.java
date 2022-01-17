@@ -11,6 +11,10 @@ public class Cell {
 
     private JLabel label = new JLabel();
 
+    public Cell(int id) {
+        this.id = id;
+    }
+
     public Cell(int id, Muehle mill) {
         this.id = id;
         this.mill = mill;

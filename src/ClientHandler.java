@@ -3,28 +3,29 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.sql.SQLException;
 
 // ClientHandler class
 class ClientHandler {
+    DB_Connector db_con;
     private final Socket clientSocket;
-    private final int id; // identification of the client
 
     private PrintWriter out;
     private BufferedReader in;
     private boolean should_receive = true;
 
-    private ClientHandler other_player;
-
     // Constructor
-    public ClientHandler(Socket socket, int id)
+    public ClientHandler(Socket socket, DB_Connector db_con)
     {
         this.clientSocket = socket;
-        this.id = id;
+        this.db_con = db_con;
     }
 
     public void run()
     {
         try {
+            db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root");
+            // database acsess //
 
             // get the outputstream of client
             out = new PrintWriter(
@@ -37,7 +38,7 @@ class ClientHandler {
 
             new Thread(this::receive_data).start(); // abgekapselt vom main thread
         }
-        catch (IOException e) {
+        catch (IOException | SQLException e) {
             e.printStackTrace();
         }
     }
@@ -48,40 +49,27 @@ class ClientHandler {
     }
 
     public void receive_data() {
-        String last_data = null; // anfragen nicht mehrmls senden
-
         while(should_receive){
             try {
                 String data = in.readLine();
                 // interpretation //
 
                 if (data != null) {
-                    if (!data.equals(last_data)) {
-                        System.out.println(data);
-                        last_data = data;
-                        if (other_player != null) { // leite daten weiter an anderen client
-                            other_player.send_data(data);
+                    System.out.println(data);
 
-                            if (!data.contains("mill")) {
-                                this.send_data("method:turn_off");
-                                other_player.send_data("method:turn_on");
-                            }
-                        }
-                    }
                 } else { // client dead
                     should_receive = false;
+                    db_con.close_con();
                 }
-            } catch (IOException e) { // could be client dead
+            } catch (IOException | SQLException e) { // could be client dead
                 should_receive = false;
                 e.printStackTrace();
             }
         }
-    }
-    public void setOther_player(ClientHandler other_player) {
-        this.other_player = other_player;
-    }
-
-    public int getId() {
-        return id;
+        try {
+            db_con.close_con();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 }

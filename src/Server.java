@@ -1,13 +1,20 @@
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
 
 // Server class
 class Server {
+    static DB_Connector db_con;
+    ArrayList[] onlineUser; // usernames inside
+    static ServerSocket server;
+
     public static void main(String[] args)
     {
-        ServerSocket server = null;
+        server = null;
+        db_con = new DB_Connector();
+
         int num_of_clients = 0;
-        ClientHandler[] clients = new ClientHandler[2];
 
         try {
 
@@ -16,7 +23,7 @@ class Server {
             server.setReuseAddress(true);
 
             // getting client request
-            while (num_of_clients < 2) { // beliebig viele (brauch nur 2)
+            while (true) { // beliebig viele clients
 
                 // socket object to receive incoming client
                 // requests
@@ -30,25 +37,13 @@ class Server {
 
                 // create a new thread object
                 ClientHandler clientSock
-                        = new ClientHandler(client, num_of_clients);
+                        = new ClientHandler(client, db_con);
 
-                clients[num_of_clients] = clientSock;
-                num_of_clients += 1;
 
                 // This thread will handle the client
                 // separately
                 clientSock.run();
             }
-
-            clients[0].setOther_player(clients[1]);
-            clients[1].setOther_player(clients[0]);
-
-            clients[0].send_data("method:init, player:white");
-            clients[1].send_data("method:init, player:black");
-
-            clients[0].send_data("method:turn_on, player:white");
-
-            System.out.println("clients connected");
 
         }
         catch (IOException e) {
