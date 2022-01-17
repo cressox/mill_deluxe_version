@@ -82,7 +82,7 @@ class Client {
         int x = -15;
         int y = -20;
 
-        BufferedImage imgSmartURL = ImageIO.read(new File("D:\\Programming\\mill_deluxe_version\\src\\muehle_brett_mit_punkten.png"));
+        BufferedImage imgSmartURL = ImageIO.read(new File("D:\\Programming\\mill_deluxe_version\\src\\Assets\\muehle_brett_mit_punkten.png"));
         ImageIcon bg = new ImageIcon(imgSmartURL);
         MAIN_LABEL.setOpaque(true);
         MAIN_LABEL.setBackground(new Color(233, 220, 211));

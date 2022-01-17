@@ -1,12 +1,10 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 
 // Server class
 class Server {
     static DB_Connector db_con;
-    ArrayList[] onlineUser; // usernames inside
     static ServerSocket server;
 
     public static void main(String[] args)

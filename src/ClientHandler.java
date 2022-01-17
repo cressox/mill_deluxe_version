@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.SQLException;
 
@@ -13,20 +14,19 @@ class ClientHandler {
     private PrintWriter out;
     private BufferedReader in;
     private boolean should_receive = true;
+    private final InetAddress ip;
 
     // Constructor
     public ClientHandler(Socket socket, DB_Connector db_con)
     {
         this.clientSocket = socket;
         this.db_con = db_con;
+        this.ip = clientSocket.getInetAddress();
     }
 
     public void run()
     {
         try {
-            db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root");
-            // database acsess //
-
             // get the outputstream of client
             out = new PrintWriter(
                     clientSocket.getOutputStream(), true);
@@ -36,7 +36,13 @@ class ClientHandler {
                     new InputStreamReader(
                             clientSocket.getInputStream()));
 
-            new Thread(this::receive_data).start(); // abgekapselt vom main thread
+            System.out.println("new CH_CON for " + ip.getHostAddress());
+
+            new Thread(this::receive_data).start();
+            // abgekapselt vom main thread
+
+            db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+            // database acsess //
         }
         catch (IOException | SQLException e) {
             e.printStackTrace();
@@ -59,15 +65,16 @@ class ClientHandler {
 
                 } else { // client dead
                     should_receive = false;
-                    db_con.close_con();
+                    db_con.close_con(ip);
                 }
             } catch (IOException | SQLException e) { // could be client dead
                 should_receive = false;
                 e.printStackTrace();
+                System.out.println("close CH_CON to client " + ip.getHostAddress());
             }
         }
         try {
-            db_con.close_con();
+            db_con.close_con(ip);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

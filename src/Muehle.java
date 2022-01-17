@@ -291,14 +291,14 @@ public class Muehle{
         }
 
         if (color.equals("white")){
-            URL imgSmartURL = this.getClass().getResource("brett_gewinn_white.png");
+            URL imgSmartURL = this.getClass().getResource("Assets/brett_gewinn_white.png");
             ImageIcon bg = new ImageIcon(imgSmartURL);
             MAIN_LABEL.setIcon(bg);
             if (send) {
                 Client.send_data("method:win, player:" + "white");
             }
         } else {
-            URL imgSmartURL = this.getClass().getResource("brett_gewinn_black.png");
+            URL imgSmartURL = this.getClass().getResource("Assets/brett_gewinn_black.png");
             ImageIcon bg = new ImageIcon(imgSmartURL);
             MAIN_LABEL.setIcon(bg);
             if (send) {

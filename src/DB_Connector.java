@@ -1,3 +1,4 @@
+import java.net.InetAddress;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,14 +22,16 @@ public class DB_Connector {
         //close_con();
     }
 
-    protected void open_con(String db_url, String db_user, String db_user_pw) throws SQLException {
+    protected void open_con(String db_url, String db_user, String db_user_pw, InetAddress ip) throws SQLException {
         MySQLURL = db_url;
         databseUserName = db_user;
         databasePassword = db_user_pw;
         con = DriverManager.getConnection(MySQLURL, databseUserName, databasePassword);
+        System.out.println("new DB_CON from CH of " + ip.getHostAddress());
     }
 
-    protected void close_con() throws SQLException {
+    protected void close_con(InetAddress ip) throws SQLException {
+        System.out.println("closed DB_CON from CH of " + ip.getHostAddress());
         con.close();
     }
 
