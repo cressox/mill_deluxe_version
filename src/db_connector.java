@@ -32,12 +32,23 @@ public class db_connector {
         con.close();
     }
 
-    static void insert_player(String color, int id) throws SQLException {
-        String sql = "INSERT INTO `player` (`id`, `color`, `stones_in`, `stones_out`, `ip`, `pw`, `username`, `online`) VALUES ('" + id + "', '" + color + "', '0', '9', NULL, NULL, NULL, '0')";
-        System.out.println(sql);
+    static void insert_stone(int id) throws SQLException {
+        String sql = "INSERT INTO `stone` (`id`, `in_game`, `tmp_lines`, `tmp_index`) VALUES (" + id + ", false, NULL, NULL)";
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
+        System.out.println(sql);
+    }
+
+    static void insert_player(String color, int id) throws SQLException {
+        String sql = "INSERT INTO `player` (`id`, `color`, `stones_in`, `stones_out`, `ip`, `pw`, `username`, `online`) VALUES ('" + id + "', '" + color + "', '0', '9', NULL, NULL, NULL, '0')";
+        CallableStatement pst = con.prepareCall(sql);
+        for (int i=1; i<=9; i++){
+            insert_stone(i + ((id-1)*9));
+        }
+        pst.execute();
+        pst.close();
+        System.out.println(sql);
     }
 
     static void insert_mill(int id, int id_p1, int id_p2) throws SQLException {
@@ -47,6 +58,7 @@ public class db_connector {
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
+        System.out.println(sql);
     }
 
     static Map get_mill(int mill_id) throws SQLException {
@@ -105,8 +117,28 @@ public class db_connector {
         return myResSet;
     }
 
+    static void delete_stone(int id) throws SQLException {
+        String sql = "delete from " + "stone" + " where id=" + id;
+        CallableStatement pst = con.prepareCall(sql);
+        pst.execute();
+        pst.close();
+    }
+
     static void delete_player(int id) throws SQLException {
-        String sql = "delete from player where id=" + id;
+        for (int i=1; i<=9; i++){
+            delete_stone(i + ((id-1)*9));
+        }
+        String sql = "delete from " + "player" + " where id=" + id;
+        CallableStatement pst = con.prepareCall(sql);
+        pst.execute();
+        pst.close();
+    }
+
+    static void delete_mill(int id) throws SQLException {
+        Map<String, String> tmp_vals = get_mill(id);
+        delete_player(Integer.parseInt(tmp_vals.get("p1")));
+        delete_player(Integer.parseInt(tmp_vals.get("p2")));
+        String sql = "delete from " + "game" + " where id=" + id;
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
@@ -168,13 +200,6 @@ public class db_connector {
         pst.close();
     }
 
-    static void delete_mill(int id) throws SQLException {
-        String sql = "delete from game where id=" + id;
-        CallableStatement pst = con.prepareCall(sql);
-        pst.execute();
-        pst.close();
-    }
-
     static void change_mill(int id, Map<String, String> values) throws SQLException {
         Map<String, String> mill_values = get_mill(id);
         // CURRENT VALUES //
@@ -217,6 +242,7 @@ public class db_connector {
         tmp_map.put("color", color);
         return tmp_map;
     }
+
     static Map<String, String> create_game_as_map(String id, String p1, String p2){
         Map<String, String> tmp_map = new HashMap<String, String>();
         tmp_map.put("id", id);
