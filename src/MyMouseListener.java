@@ -43,5 +43,6 @@ public class MyMouseListener implements MouseListener {
     public void mouseClicked(MouseEvent e) {
         if (cell != null) System.out.println(cell.getId());
         else System.out.println(label.getText());
+        Client.send_data(String.valueOf(cell.getId()));
     }
 }

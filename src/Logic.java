@@ -2,61 +2,48 @@ import javax.swing.*;
 import java.net.URL;
 import java.util.Arrays;
 
-public class Muehle{
+public class Logic {
     boolean my_turn = false; // cant interact
 
     private static Cell[] cells = new Cell[24]; // cells in the game where stones can take place
     private Player p1; // X = white;
     private Player p2; // O = black;
+
     private int stage = 0;
+    // 0 = initial stage
+    // 1 = first stage
+    // 2 = second stage
+    // 3 = third stage
+
     private int num_of_clicked_cells = 0;
     private Cell tmpCell1;
     private Cell tmpCell2;
     private boolean isMill = false;
     private boolean gameOver = false;
 
-    private JFrame frame;
-    private JLabel MAIN_LABEL;
-    private JLabel abbruch;
-    private JLabel neustart;
-    private JTextArea label_p1;
-    private JTextArea label_p2;
-    private JTextArea label_cp;
-    private JTextArea info;
+    public void init(int id_p1, int id_p2, String color_p1, String color_p2){
+        p1 = new Player(id_p1, color_p1, "", "");
+        p2 = new Player(id_p2, color_p2, "", "");
+    }
 
-    // 0 = initial stage
-    // 1 = first stage
-    // 2 = second stage
-    // 3 = third stage
-
-    public Muehle() {
-        this.p1 = new Player(0,"", "", "");
-        this.p2 = new Player(1,"", "", "");
-
-        MAIN_LABEL = new JLabel();
-        frame = new JFrame("The Mill Game");
-        abbruch = new JLabel();
-        neustart = new JLabel();
-        label_p1 = new JTextArea();
-        label_p2 = new JTextArea();
-        label_cp = new JTextArea();
-        info = new JTextArea();
-
-        label_p1.setVisible(false);
-        label_p2.setVisible(false);
-        label_cp.setVisible(false);
-        info.setVisible(false);
-
-        if ((int)(Math.random()*2) == 0){ // player who start is randomly chosen
-            setP1(p1);
-            setP2(p2);
-        } else {
-            setP1(p2);
-            setP2(p1);
+    public void interpret_client_request(String data) {
+        switch (stage) {
+            case 1 -> {
+                System.out.println();
+            }
+            case 2 -> {
+                System.out.println();
+            }
         }
     }
 
-    // METHODS //
+    Player choose_player(Player p1, Player p2){
+        if ((int)(Math.random()*2) == 0){
+            return p1;
+        } else {
+            return p2;
+        }
+    }
 
     void start_game(Muehle m){
         boolean game_is_running = true; // if game is over it switches to false
@@ -68,37 +55,25 @@ public class Muehle{
         if (p1.getStones_to_set() == 0 && p2.getStones_to_set() == 0){ // stage one ends and the second stage starts cause no stones to set left
             setStage(2);
             second_stage(c);
-            update_label(label_p1, "Player black has:\n"+ p1.getStones_in_game() +" stones left in game");
-            update_label(label_p2, "Player white has:\n"+ p2.getStones_in_game() +" stones left in game");
         } else{
             if (isMill){
                 if (c.getStone() != null && c.getStone().getColor() != p1.getColor()){
                     if (!is_mill(c) || only_mills_in_game(p2)) {
                         p1.takeStone(c, true);
                         p2.setStones_in_game(p2.getStones_in_game() - 1);
-                        update_label(p2.label, "Player " + p2.getColor() + " has:\n" + p2.getStones_in_game() + " stones left in game");
-                        update_label(p1.label, "Player " + p1.getColor() + " has:\n" + p1.getStones_in_game() + " stones left in game");
                         isMill = false;
 //                        switch_player();
-                    } else {
-                        update_label(info, "cant take stone because it is in a mill try again");
-//                        System.out.println("cant take stone in cell " + c.getId());
                     }
                 }
             }
 
             else if (p1.setStone(c, true)){
-                update_label(p1.label, "Player "+ p1.getColor() +" has:\n" + p1.getStones_to_set() + " stones left to set");
-                update_label(p2.label, "Player "+ p2.getColor() +" has:\n" + p2.getStones_to_set() + " stones left to set");
                 if (is_mill(c)){ // mühle
                     isMill = true;
-                    update_label(info, "Player " + p1.getColor() + " you have a mill! Pick a " + p2.getColor() + " stone");
                 }
 //                else{
 //                    switch_player();
 //                }
-            } else {
-                update_label(info, "Zelle darf nicht leer sein");
             }
         }
     }
@@ -114,7 +89,6 @@ public class Muehle{
                     p1.takeStone(c, true); // spieler nimmt stein des anderen spielers
 
                     p2.setStones_in_game(p2.getStones_in_game() - 1);
-                    update_label(p2.label, "Player "+ p2.getColor() +" has:\n"+p2.getStones_in_game()+" stones left in game");
 //                    switch_player(); // next player
 
                     isMill = false;
@@ -122,9 +96,6 @@ public class Muehle{
                         winning(p1.getColor(), true);
                     }
                 }
-            } else{
-                update_label(info, "cant take stone because it is in a mill try again");
-//                System.out.println("cant take stone in cell "+c.getId());
             }
         }
 
@@ -138,11 +109,6 @@ public class Muehle{
                         num_of_clicked_cells += 1;
                         tmpCell1 = c;
 //                        System.out.println("erste zelle ist " + c.getId());
-                    }
-                    else {
-//                        System.out.println("erste zelle darf nicht leer sein");
-                        update_label(info, "erste zelle darf nicht leer sein");
-
                     }
                 }
 
@@ -178,24 +144,14 @@ public class Muehle{
 //                            }
                         }
                         else { // invalid try
-//                            System.out.println("2. zelle muss nachbar der 1. sein");
-                            update_label(info, "2. zelle muss nachbar der 1. sein");
                             num_of_clicked_cells = 0;
                         }
                     } else if (is_blocked(p1)) {
                         winning(p2.getColor(), true);
                     }
-                    else {
-//                        System.out.println("2. zelle draf nicht die 1. sein und muss leer sein");
-                        update_label(info, "2. zelle draf nicht die 1. sein und muss leer sein");
-                    }
                 }
             }
         }
-//        System.out.println("player black has "+p1.getStones_in_game()+" stones left");
-//        System.out.println("player white has "+p2.getStones_in_game()+" stones left");
-
-        update_label(p1.label, "Player "+ p1.getColor() +" has:\n"+p1.getStones_in_game()+" stones left in game");
     }
 
     void third_stage(Cell c){
@@ -239,8 +195,6 @@ public class Muehle{
                 }
             }
             if (num_of_same_stones_in_line == 3) {
-//                System.out.println("a mil on line " + line);
-                update_label(info, "Player " + p1.getColor() + " you have a mill! Pick a " + p2.getColor() + " stone");
                 return true;
             }
 
@@ -281,7 +235,6 @@ public class Muehle{
     }
 
     void winning(String color, boolean send){
-        neustart.setVisible(true);
         for (Cell c : cells){
             c.getLabel().setIcon(null);
         }
@@ -289,14 +242,12 @@ public class Muehle{
         if (color.equals("white")){
             URL imgSmartURL = this.getClass().getResource("Assets/brett_gewinn_white.png");
             ImageIcon bg = new ImageIcon(imgSmartURL);
-            MAIN_LABEL.setIcon(bg);
             if (send) {
                 Client.send_data("method:win, player:" + "white");
             }
         } else {
             URL imgSmartURL = this.getClass().getResource("Assets/brett_gewinn_black.png");
             ImageIcon bg = new ImageIcon(imgSmartURL);
-            MAIN_LABEL.setIcon(bg);
             if (send) {
                 Client.send_data("method:win, player:" + "black");
             }
@@ -314,15 +265,22 @@ public class Muehle{
         return false;
     }
 
-    static void update_label(JTextArea l, String s){
-        l.setText(s);
+    // GETTER AND SETTER //
+
+    public boolean isMy_turn() {
+        return my_turn;
     }
 
-    // GETTER and SETTER //
+    public void setMy_turn(boolean my_turn) {
+        this.my_turn = my_turn;
+    }
 
+    public static Cell[] getCells() {
+        return cells;
+    }
 
-    public void setStage(int stage) {
-        this.stage = stage;
+    public static void setCells(Cell[] cells) {
+        Logic.cells = cells;
     }
 
     public Player getP1() {
@@ -345,12 +303,8 @@ public class Muehle{
         return stage;
     }
 
-    public static Cell[] getCells() {
-        return cells;
-    }
-
-    public static void setCells(Cell[] cells) {
-        Muehle.cells = cells;
+    public void setStage(int stage) {
+        this.stage = stage;
     }
 
     public int getNum_of_clicked_cells() {
@@ -359,23 +313,6 @@ public class Muehle{
 
     public void setNum_of_clicked_cells(int num_of_clicked_cells) {
         this.num_of_clicked_cells = num_of_clicked_cells;
-    }
-
-    public boolean isGameOver() {
-        return gameOver;
-    }
-
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
-    }
-
-    public boolean isMy_turn() {
-        // abfrage server //
-        return my_turn;
-    }
-
-    public void setMy_turn(boolean my_turn) {
-        this.my_turn = my_turn;
     }
 
     public Cell getTmpCell1() {
@@ -402,67 +339,11 @@ public class Muehle{
         isMill = mill;
     }
 
-    public JFrame getFrame() {
-        return frame;
+    public boolean isGameOver() {
+        return gameOver;
     }
 
-    public void setFrame(JFrame frame) {
-        this.frame = frame;
-    }
-
-    public JLabel getMAIN_LABEL() {
-        return MAIN_LABEL;
-    }
-
-    public void setMAIN_LABEL(JLabel MAIN_LABEL) {
-        this.MAIN_LABEL = MAIN_LABEL;
-    }
-
-    public JTextArea getLabel_p1() {
-        return label_p1;
-    }
-
-    public void setLabel_p1(JTextArea label_p1) {
-        this.label_p1 = label_p1;
-    }
-
-    public JTextArea getLabel_p2() {
-        return label_p2;
-    }
-
-    public void setLabel_p2(JTextArea label_p2) {
-        this.label_p2 = label_p2;
-    }
-
-    public JTextArea getLabel_cp() {
-        return label_cp;
-    }
-
-    public void setLabel_cp(JTextArea label_cp) {
-        this.label_cp = label_cp;
-    }
-
-    public JTextArea getInfo() {
-        return info;
-    }
-
-    public void setInfo(JTextArea info) {
-        this.info = info;
-    }
-
-    public JLabel getAbbruch() {
-        return abbruch;
-    }
-
-    public void setAbbruch(JLabel abbruch) {
-        this.abbruch = abbruch;
-    }
-
-    public JLabel getNeustart() {
-        return neustart;
-    }
-
-    public void setNeustart(JLabel neustart) {
-        this.neustart = neustart;
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 }

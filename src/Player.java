@@ -4,34 +4,39 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Player {
+    int id;
+    private String color;
+    private int stones_to_set = 9;
+    private int stones_in_game = 0;
+
+    // for logic //
+    private Stone[] stones = new Stone[9];
+
+    // SERVER //
+    private Client client = new Client();
+
+    // GUI //
     ImageIcon icon;
     ImageIcon iconActive;
     private String imgURL;
     private String imgURLActive;
-    private Stone[] stones = new Stone[9];
-    private int stones_to_set = 9;
-    private int stones_in_game = 0;
-    private String color;
-    private Color COLOR = new Color(233, 220, 211);
-
-    private Client client = new Client();
-
     JTextArea label = new JTextArea();
     JTextArea info = new JTextArea();
+    private Color COLOR_OF_GUI = new Color(233, 220, 211);
 
-    public Player(String color, JTextArea label, JTextArea info, String imgUrl, String imgURLActive) {
+    public Player(int id, String color, String imgUrl, String imgURLActive) {
+        this.id = id;
         this.color = color;
         this.label = label;
         this.info = info;
-        for (int i = 0; i < 9; i++){ // initialise stones as objects in the field stones
-            stones[i] = new Stone(i+1, color, this);
+        for (int i=1; i<=9; i++){ // initialise stones as objects in the field stones
+            stones[i-1] = new Stone(i + ((id-1)*9), color, this);
         }
         icon = new ImageIcon(Objects.requireNonNull(this.getClass().getResource(imgUrl)));
         iconActive = new ImageIcon(Objects.requireNonNull(this.getClass().getResource(imgURLActive)));
     }
 
     // METHODS //
-
     public boolean setStone(Cell c, boolean send){ // zelle die angeklickt wurde muss mit übergeben werden um sie zuordnen zu können
         if (getStones_in_game() < 9 && c.isIs_empty()){
             stones[getStones_in_game()].setIs_set(true); // stein ist siochtbar
@@ -74,7 +79,7 @@ public class Player {
 
         end_cell.getLabel().setBackground(start_cell.getLabel().getBackground()); // visuelle änderung
         end_cell.getLabel().setIcon(start_cell.getLabel().getIcon());
-        start_cell.getLabel().setBackground(COLOR);
+        start_cell.getLabel().setBackground(COLOR_OF_GUI);
         start_cell.getLabel().setIcon(null);
 
 
@@ -100,13 +105,11 @@ public class Player {
         c.getStone().setCell(null); // löscht im stein die zelle
         c.setIs_empty(true); // zelle ist wieder leer
         c.setStone(null); // löscht stein
-        c.getLabel().setBackground(COLOR);
+        c.getLabel().setBackground(COLOR_OF_GUI);
         c.getLabel().setIcon(null);
     }
 
-
     // MAGIC METHODS //
-
     @Override
     public String toString() {
         return "Player{" +
@@ -117,9 +120,7 @@ public class Player {
                 '}';
     }
 
-
     // GETTER and SETTER //
-
     public Stone[] getStones() {
         return stones;
     }
@@ -154,9 +155,5 @@ public class Player {
 
     public Client getClient() {
         return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
     }
 }
