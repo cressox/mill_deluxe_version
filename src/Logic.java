@@ -3,6 +3,9 @@ import java.net.URL;
 import java.util.Arrays;
 
 public class Logic {
+    int id;
+    String test = "";
+
     boolean my_turn = false; // cant interact
 
     private static Cell[] cells = new Cell[24]; // cells in the game where stones can take place
@@ -20,6 +23,10 @@ public class Logic {
     private Cell tmpCell2;
     private boolean isMill = false;
     private boolean gameOver = false;
+
+    public Logic(int id) {
+        this.id = id;
+    }
 
     public void init(int id_p1, int id_p2, String color_p1, String color_p2){
         p1 = new Player(id_p1, color_p1, "", "");
@@ -345,5 +352,17 @@ public class Logic {
 
     public void setGameOver(boolean gameOver) {
         this.gameOver = gameOver;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setTest(String test) {
+        this.test = test;
+    }
+
+    public String getTest() {
+        return test;
     }
 }

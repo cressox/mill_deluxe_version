@@ -9,6 +9,7 @@ import java.util.Map;
 
 // ClientHandler class
 class ClientHandler {
+    int mill_id;
     int id;
     DB_Connector db_con;
     private final Socket clientSocket;
@@ -66,7 +67,7 @@ class ClientHandler {
                     System.out.println(data);
                     // interpret data in class logic //
                     update(data);
-                    send_data(lgc.getP1().toString());
+                    send_data("logic id: " + lgc.getId() + " Player One: " + lgc.getP1().toString() + " " + lgc.getTest());
 
                 } else { // client dead
                     should_receive = false;
@@ -74,27 +75,60 @@ class ClientHandler {
             } catch (IOException | SQLException e) { // could be client dead
                 should_receive = false;
                 e.printStackTrace();
-                System.out.println("close CH_CON to client " + ip.getHostAddress());
             }
         }
+        try {
+            disconnect();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    void disconnect() throws SQLException {
+        db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+        Map<String, String> mill = db_con.get_mill(mill_id);
+        System.out.println(mill_id);
+        System.out.println(mill);
+        db_con.close_con(ip);
+
+        if (mill==null || mill.isEmpty()){
+            should_receive = false;
+            System.out.println("set should_receive to false");
+        } else {
+            System.out.println("delete mill");
+            db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+            db_con.delete_mill(Integer.parseInt(mill.get("id")));
+            db_con.close_con(ip);
+        }
+        System.out.println("closed CH_CON to client " + ip.getHostAddress());
     }
 
     // update via db //
     void update(String client_request) throws SQLException {
+
+
         db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
         // database acsess //
 
         // current game data //
         Map<String, String> mill = db_con.get_mill(id);
-        int id_p1 = Integer.parseInt(mill.get("p1"));
-        int id_p2 = Integer.parseInt(mill.get("p2"));
-        System.out.println(mill);
 
-        Map<String, String> p1 = db_con.get_player(id_p1);
-        System.out.println(p1);
+        // if mill doesnt exist anymore (cause other client dyed)
+        // than check that and disconnect
+        if (mill==null){
+            disconnect();
 
-        Map<String, String> p2 = db_con.get_player(id_p2);
-        System.out.println(p2);
+        } else {
+            int id_p1 = Integer.parseInt(mill.get("p1"));
+            int id_p2 = Integer.parseInt(mill.get("p2"));
+//        System.out.println(mill);
+
+            Map<String, String> p1 = db_con.get_player(id_p1);
+//        System.out.println(p1);
+
+            Map<String, String> p2 = db_con.get_player(id_p2);
+//        System.out.println(p2);
+        }
 
         db_con.close_con(ip);
         // close db_con //
@@ -106,5 +140,13 @@ class ClientHandler {
 
     public int getId() {
         return id;
+    }
+
+    public int getMill_id() {
+        return mill_id;
+    }
+
+    public void setMill_id(int mill_id) {
+        this.mill_id = mill_id;
     }
 }

@@ -22,6 +22,28 @@ public class DB_Connector {
         //close_con();
     }
 
+    protected int get_count_of_mills(InetAddress ip) throws SQLException {
+        String sql = "SELECT MAX(Id) FROM game";
+        open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        rs.next();
+        int tmp_count = rs.getInt("MAX(Id)");
+        close_con(ip);
+        return tmp_count;
+    }
+
+    protected int get_count_of_players(InetAddress ip) throws SQLException {
+        String sql = "SELECT MAX(Id) FROM player";
+        open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        rs.next();
+        int tmp_count = rs.getInt("MAX(Id)");
+        close_con(ip);
+        return tmp_count;
+    }
+
     protected void open_con(String db_url, String db_user, String db_user_pw, InetAddress ip) throws SQLException {
         MySQLURL = db_url;
         databseUserName = db_user;
@@ -65,8 +87,13 @@ public class DB_Connector {
     }
 
     protected Map get_mill(int mill_id) throws SQLException {
+        // check if row exists //
+        String sql = "SELECT * FROM game WHERE id = " + mill_id;
+
         Statement stmt = con.createStatement();
-        ResultSet rs = stmt.executeQuery("select * from game");
+        ResultSet rs = stmt.executeQuery(sql);
+
+        if (rs==null) return null;
 
         Map<String, String> myResSet = new HashMap();
 
@@ -89,8 +116,12 @@ public class DB_Connector {
     }
 
     protected Map get_player(int player_id) throws SQLException {
+        String sql = "SELECT * FROM player WHERE id = " + player_id;
+
         Statement stmt = con.createStatement();
-        ResultSet rs = stmt.executeQuery("select * from player");
+        ResultSet rs = stmt.executeQuery(sql);
+
+        if (rs==null) return null;
 
         Map<String, String> myResSet = new HashMap();
 
@@ -125,6 +156,7 @@ public class DB_Connector {
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
+        System.out.println("delete stone with id: " + id);
     }
 
     protected void delete_player(int id) throws SQLException {
@@ -135,6 +167,7 @@ public class DB_Connector {
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
+        System.out.println("delete player with id: " + id);
     }
 
     protected void delete_mill(int id) throws SQLException {
@@ -145,6 +178,7 @@ public class DB_Connector {
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
+        System.out.println("delete mill with id: " + id);
     }
 
     protected void change_player(int id, Map<String, String> values) throws SQLException {

@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -17,10 +18,16 @@ class Server {
     static Logic tmp_lgc;
 
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws UnknownHostException, SQLException {
         server = null;
         db_con = new DB_Connector();
+
+        InetAddress ip = InetAddress.getLocalHost();
+        mill_games = db_con.get_count_of_mills(ip);
+        num_of_clients = db_con.get_count_of_players(ip);
+
+        System.out.println("active mill games in db: " + mill_games);
+        System.out.println("registered players in db: " + num_of_clients);
 
         ClientHandler clients[] = new ClientHandler[2];
 
@@ -34,12 +41,10 @@ class Server {
                         + client.getInetAddress()
                         .getHostAddress());
 
-                InetAddress ip = client.getInetAddress();
-
-                db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-                db_con.delete_mill(1);
-                db_con.delete_mill(2);
-                db_con.close_con(ip);
+//                db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+//                db_con.delete_mill(1);
+//                db_con.delete_mill(2);
+//                db_con.close_con(ip);
 
                 // create a new thread object
                 ClientHandler clientSock
@@ -53,10 +58,17 @@ class Server {
                     db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
                     db_con.insert_mill(mill_games, clients[0].getId(), clients[1].getId());
                     db_con.close_con(ip);
-                    tmp_lgc = new Logic();
+                    tmp_lgc = new Logic(mill_games);
                     init_lgc(mill_games, ip);
                     clients[1].setLgc(tmp_lgc);
                     clients[0].setLgc(tmp_lgc);
+
+                    clients[0].setMill_id(mill_games);
+                    clients[1].setMill_id(mill_games);
+
+                    if (mill_games == 1){
+                        tmp_lgc.setTest("bei beiden aktiv!!!");
+                    }
                     clients[0] = null;
                     clients[1] = null;
                     i = 0;
