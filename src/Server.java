@@ -42,8 +42,9 @@ class Server {
                         .getHostAddress());
 
 //                db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-//                db_con.delete_mill(1);
-//                db_con.delete_mill(2);
+//                for(int i = 433; i<=450; i++){
+//                    db_con.delete_stone(i);
+//                }
 //                db_con.close_con(ip);
 
                 // create a new thread object
@@ -111,11 +112,15 @@ class Server {
         String color_p2 = p2.get("color");
         System.out.println(p2);
 
-        System.out.println(tmp_lgc.getP1());
+//        System.out.println(tmp_lgc.getP1());
         tmp_lgc.init(id_p1, id_p2, color_p1, color_p2);
-        System.out.println(tmp_lgc.getP1());
+//        System.out.println(tmp_lgc.getP1());
 
         db_con.close_con(ip);
         // close db_con //
+
+        // debug the current values //
+        System.out.println("active mill games in db: " + mill_games);
+        System.out.println("registered players in db: " + num_of_clients);
     }
 }

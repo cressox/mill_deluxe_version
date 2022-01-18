@@ -49,11 +49,11 @@ public class DB_Connector {
         databseUserName = db_user;
         databasePassword = db_user_pw;
         con = DriverManager.getConnection(MySQLURL, databseUserName, databasePassword);
-        System.out.println("new DB_CON from CH of " + ip.getHostAddress());
+//        System.out.println("new DB_CON from CH of " + ip.getHostAddress());
     }
 
     protected void close_con(InetAddress ip) throws SQLException {
-        System.out.println("closed DB_CON from CH of " + ip.getHostAddress());
+//        System.out.println("closed DB_CON from CH of " + ip.getHostAddress());
         con.close();
     }
 
@@ -66,11 +66,32 @@ public class DB_Connector {
     }
 
     protected void insert_player(String color, int id) throws SQLException {
-        String sql = "INSERT INTO `player` (`id`, `color`, `stones_in`, `stones_out`, `ip`, `pw`, `username`, `online`) VALUES ('" + id + "', '" + color + "', '0', '9', NULL, NULL, NULL, '0')";
-        CallableStatement pst = con.prepareCall(sql);
-        for (int i=1; i<=9; i++){
-            insert_stone(i + ((id-1)*9));
+        Map<String, String> player = get_player(id); // check if player exists
+        if (player==null || player.isEmpty()){ // player doesnt exist
+            String sql = "INSERT INTO `player` (`id`, `color`, `stones_in`, `stones_out`, `ip`, `pw`, `username`, `online`) VALUES ('" + id + "', '" + color + "', '0', '9', NULL, NULL, NULL, '0')";
+            CallableStatement pst = con.prepareCall(sql);
+            for (int i = 1; i <= 9; i++) {
+                insert_stone(i + ((id - 1) * 9));
+            }
+            pst.execute();
+            pst.close();
+            System.out.println(sql);
+        } else { // player exists
+            activate_player(id);
         }
+    }
+
+    protected void activate_player(int player_id) throws SQLException {
+        String sql = "update player set online=true where id=" + player_id;
+        CallableStatement pst = con.prepareCall(sql);
+        pst.execute();
+        pst.close();
+        System.out.println(sql);
+    }
+
+    protected void deactivate_player(int player_id) throws SQLException {
+        String sql = "update player set online=false where id=" + player_id;
+        CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
         System.out.println(sql);
@@ -156,7 +177,7 @@ public class DB_Connector {
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
-        System.out.println("delete stone with id: " + id);
+        System.out.println(sql);
     }
 
     protected void delete_player(int id) throws SQLException {
@@ -167,18 +188,23 @@ public class DB_Connector {
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
-        System.out.println("delete player with id: " + id);
+        System.out.println(sql);
     }
 
-    protected void delete_mill(int id) throws SQLException {
+    protected void delete_mill(int id, boolean only_game) throws SQLException {
         Map<String, String> tmp_vals = get_mill(id);
-        delete_player(Integer.parseInt(tmp_vals.get("p1")));
-        delete_player(Integer.parseInt(tmp_vals.get("p2")));
+        if (!only_game){ // deleting players
+            delete_player(Integer.parseInt(tmp_vals.get("p1")));
+            delete_player(Integer.parseInt(tmp_vals.get("p2")));
+        } else{ // setting players offline
+            deactivate_player(Integer.parseInt(tmp_vals.get("p1")));
+            deactivate_player(Integer.parseInt(tmp_vals.get("p2")));
+        }
         String sql = "delete from " + "game" + " where id=" + id;
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
-        System.out.println("delete mill with id: " + id);
+        System.out.println(sql);
     }
 
     protected void change_player(int id, Map<String, String> values) throws SQLException {

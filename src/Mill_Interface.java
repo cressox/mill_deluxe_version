@@ -26,6 +26,7 @@ public class Mill_Interface {
     void init() throws IOException {
         MAIN_FRAME.getContentPane();
         MAIN_FRAME.setSize(WIDTH + 50, HEIGHT);
+        MAIN_FRAME.setLocationRelativeTo(null);
 
         BufferedImage imgSmartURL = ImageIO.read(new File("D:\\Programming\\mill_deluxe_version\\src\\Assets\\muehle_brett_mit_punkten.png"));
         ImageIcon bg = new ImageIcon(imgSmartURL);

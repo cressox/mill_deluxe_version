@@ -9,7 +9,7 @@ import java.util.Map;
 
 // ClientHandler class
 class ClientHandler {
-    int mill_id;
+    int mill_id = -1;
     int id;
     DB_Connector db_con;
     private final Socket clientSocket;
@@ -85,22 +85,24 @@ class ClientHandler {
     }
 
     void disconnect() throws SQLException {
-        db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-        Map<String, String> mill = db_con.get_mill(mill_id);
-        System.out.println(mill_id);
-        System.out.println(mill);
-        db_con.close_con(ip);
-
-        if (mill==null || mill.isEmpty()){
-            should_receive = false;
-            System.out.println("set should_receive to false");
-        } else {
-            System.out.println("delete mill");
+        if (mill_id!=-1) {
             db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-            db_con.delete_mill(Integer.parseInt(mill.get("id")));
+            Map<String, String> mill = db_con.get_mill(mill_id);
+            System.out.println(mill_id);
+            System.out.println(mill);
             db_con.close_con(ip);
+
+            if (mill == null || mill.isEmpty()) {
+                should_receive = false;
+                System.out.println("set should_receive to false");
+            } else {
+                System.out.println("delete mill");
+                db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+                db_con.delete_mill(Integer.parseInt(mill.get("id")), true);
+                db_con.close_con(ip);
+            }
+            System.out.println("closed CH_CON to client " + ip.getHostAddress());
         }
-        System.out.println("closed CH_CON to client " + ip.getHostAddress());
     }
 
     // update via db //
