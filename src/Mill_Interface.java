@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class Mill_Interface {
     // GAME VARIABLES //
@@ -13,6 +14,15 @@ public class Mill_Interface {
     private static JLabel MAIN_LABEL = new JLabel();
     private static JLabel abbruch = new JLabel();
     private static JLabel neustart = new JLabel();
+
+    private String imgURL_black = "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black.png";
+    ImageIcon icon_black = new ImageIcon(Objects.requireNonNull(imgURL_black));
+    private String imgURL_black_active = "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black-red.png";
+    ImageIcon icon_black_active = new ImageIcon(Objects.requireNonNull(imgURL_black_active));
+    private String imgURL_white = "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white.png";
+    ImageIcon icon_white = new ImageIcon(Objects.requireNonNull(imgURL_white));
+    private String imgURL_white_active = "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white-red.png";
+    ImageIcon icon_white_active = new ImageIcon(Objects.requireNonNull(imgURL_white_active));
 
     // CONSTANT VALUES //
     int WIDTH = 720;
@@ -63,8 +73,9 @@ public class Mill_Interface {
         for (int i = 0; i < 24; i++) {
             cells[i] = new Cell(i);
             MyMouseListener tmp_ml = new MyMouseListener(cells[i].getLabel(), cells[i]);
+            tmp_ml.setMill_interface(this);
             cells[i].getLabel().addMouseListener(tmp_ml); // make labels clickable
-            cells[i].getLabel().setOpaque(true);
+            cells[i].getLabel().setOpaque(false);
         }
 
         // POSITIONING OF THE 24 LABELS //
@@ -161,5 +172,35 @@ public class Mill_Interface {
         MAIN_FRAME.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         MAIN_FRAME.add(MAIN_LABEL);
         MAIN_FRAME.setVisible(true);
+    }
+
+    void set_stone(Cell c, char ch){
+        switch(ch){
+            case 'b' ->{
+                c.getLabel().setIcon(icon_black);
+                c.getLabel().setVisible(true);
+            }
+            case 'w' ->{
+                c.getLabel().setIcon(icon_white);
+                c.getLabel().setVisible(true);
+            }
+            case 'n' ->{
+                c.getLabel().setIcon(null);
+                c.getLabel().setVisible(false);
+            }
+        }
+
+    }
+
+    public static Cell[] getCells() {
+        return cells;
+    }
+
+    public ImageIcon getIcon_black() {
+        return icon_black;
+    }
+
+    public ImageIcon getIcon_white() {
+        return icon_white;
     }
 }

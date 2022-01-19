@@ -90,16 +90,13 @@ class ClientHandler {
             Map<String, String> mill = db_con.getMillByID(mill_id, ip);
             System.out.println(mill_id);
             System.out.println(mill);
-            db_con.close_con(ip);
 
             if (mill == null || mill.isEmpty()) {
                 should_receive = false;
                 System.out.println("set should_receive to false");
             } else {
                 System.out.println("delete mill");
-                db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
                 db_con.delete_mill(Integer.parseInt(mill.get("id")), true, ip);
-                db_con.close_con(ip);
             }
             System.out.println("closed CH_CON to client " + ip.getHostAddress());
         }
@@ -133,9 +130,6 @@ class ClientHandler {
             Map<String, String> p2 = db_con.getPlayerByID(id_p2, ip);
 //        System.out.println(p2);
         }
-
-        db_con.close_con(ip);
-        // close db_con //
     }
 
     public void setLgc(Logic lgc) {

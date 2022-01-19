@@ -74,7 +74,7 @@ public class Muehle{
             if (isMill){
                 if (c.getStone() != null && c.getStone().getColor() != p1.getColor()){
                     if (!is_mill(c) || only_mills_in_game(p2)) {
-                        p1.takeStone(c, true);
+                        p1.take_stone(c);
                         p2.setStones_in_game(p2.getStones_in_game() - 1);
                         update_label(p2.label, "Player " + p2.getColor() + " has:\n" + p2.getStones_in_game() + " stones left in game");
                         update_label(p1.label, "Player " + p1.getColor() + " has:\n" + p1.getStones_in_game() + " stones left in game");
@@ -87,7 +87,7 @@ public class Muehle{
                 }
             }
 
-            else if (p1.setStone(c, true)){
+            else if (p1.set_stone(c)){
                 update_label(p1.label, "Player "+ p1.getColor() +" has:\n" + p1.getStones_to_set() + " stones left to set");
                 update_label(p2.label, "Player "+ p2.getColor() +" has:\n" + p2.getStones_to_set() + " stones left to set");
                 if (is_mill(c)){ // mühle
@@ -111,7 +111,7 @@ public class Muehle{
         if (isMill && (c.getStone() != null)) { // spieler hat mühle und pot weggenommene zelle ist nicht leer
             if (!c.getStone().getColor().equals(p1.getColor())) { // darf nicht eigener stein sein
                 if (!is_mill(c) || only_mills_in_game(p2)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
-                    p1.takeStone(c, true); // spieler nimmt stein des anderen spielers
+                    p1.take_stone(c); // spieler nimmt stein des anderen spielers
 
                     p2.setStones_in_game(p2.getStones_in_game() - 1);
                     update_label(p2.label, "Player "+ p2.getColor() +" has:\n"+p2.getStones_in_game()+" stones left in game");
@@ -155,16 +155,16 @@ public class Muehle{
                             num_of_clicked_cells = 0; // zähler für start und end auf null
 
                             if (is_in_neigbors(tmpCell1, c)){
-                                p1.moveStone(tmpCell1, tmpCell2, true); // bewegen
+                                p1.move_stone(tmpCell1, tmpCell2); // bewegen
                             }
                             else if (p1.getStones_in_game() <= 3) {
                                 if (tmpCell1.getStone().getColor() == p1.getColor()){
-                                    p1.moveStone(tmpCell1, tmpCell2, true); // bewegen
+                                    p1.move_stone(tmpCell1, tmpCell2); // bewegen
                                 }
                             }
                             else if (p2.getStones_in_game() <= 3){
                                 if (tmpCell1.getStone().getColor() == p2.getColor()){
-                                    p2.moveStone(tmpCell1, tmpCell2, true); // bewegen
+                                    p2.move_stone(tmpCell1, tmpCell2); // bewegen
                                 }
                             }
 

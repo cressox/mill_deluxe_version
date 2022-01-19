@@ -38,6 +38,7 @@ public class Login {
 
     public static void main(String[] args) throws SQLException {
         draw();
+        db_con.wipe_all(ip);
     }
 
     public static void init(){

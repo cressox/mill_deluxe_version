@@ -37,7 +37,7 @@ public class Player {
     }
 
     // METHODS //
-    public boolean setStone(Cell c, boolean send){ // zelle die angeklickt wurde muss mit übergeben werden um sie zuordnen zu können
+    public boolean set_stone(Cell c){ // zelle die angeklickt wurde muss mit übergeben werden um sie zuordnen zu können
         if (getStones_in_game() < 9 && c.isIs_empty()){
             stones[getStones_in_game()].setIs_set(true); // stein ist siochtbar
             stones[getStones_in_game()].setCell(c); // ordnet stein die zelle zu
@@ -45,19 +45,10 @@ public class Player {
             c.setIs_empty(false); // zelle ist nicht mehr leer
             c.setStone(stones[getStones_in_game()]); // ordnet zelle den stein zu
 
-            selectStone(c, false);
+            select_stone(c, false);
 
             setStones_in_game(getStones_in_game() + 1);
             setStones_to_set(getStones_to_set() - 1);
-
-            if (send) {
-                if (c.getMill().is_mill(c)){
-                    Client.send_data("method:set, cell:" + c.getId() + ", player:" + color + "action:mill");
-                } else {
-                    Client.send_data("method:set, cell:" + c.getId() + ", player:" + color);
-                }
-
-            }
 
             return true;
 
@@ -66,12 +57,12 @@ public class Player {
         }
     }
 
-    void selectStone(Cell c, boolean selected){
+    void select_stone(Cell c, boolean selected){
         c.getLabel().setIcon(selected ? iconActive : icon);
         c.getStone().setIs_visible(selected);
     }
 
-    void moveStone(Cell start_cell, Cell end_cell, boolean send){
+    void move_stone(Cell start_cell, Cell end_cell){
         start_cell.getStone().setCell(end_cell); // verknüpft neue zelle mit stein
         end_cell.setStone(start_cell.getStone()); // verknüpft den stein mit der neuen zelle
         end_cell.setIs_empty(false); // end zelle ist nun nicht mehr leer
@@ -86,22 +77,9 @@ public class Player {
 //        System.out.println(start_cell.getLabel().getText());
 
         start_cell.setStone(null);
-
-        if (send) {
-            if (end_cell.getMill().is_mill(end_cell)){
-                Client.send_data("method:move, start_cell:" + start_cell.getId() + ", end_cell:" + end_cell.getId() + ", player:" + color + "action:mill");
-            } else {
-                Client.send_data("method:move, start_cell:" + start_cell.getId() + ", end_cell:" + end_cell.getId() + ", player:" + color);
-            }
-
-        }
     }
 
-    void takeStone(Cell c, boolean send){
-        if (send){
-            Client.send_data("method:take, cell:" + c.getId() + ", player:" + color);
-        }
-
+    void take_stone(Cell c){
         c.getStone().setCell(null); // löscht im stein die zelle
         c.setIs_empty(true); // zelle ist wieder leer
         c.setStone(null); // löscht stein

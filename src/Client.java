@@ -12,6 +12,7 @@ class Client {
     private static boolean should_receive = true;
     private static Socket socket;
     private static Mill_Interface mill_interface = new Mill_Interface();
+    private static Player player;
 
     // driver code
     public static void main(String[] args) throws IOException {
@@ -56,6 +57,17 @@ class Client {
                 e.printStackTrace();
                 should_receive = false;
             }
+        }
+    }
+
+    // INTERPRET DATA FROM CH //
+    public void interpret_incomming_data(String data){
+        int i = 0;
+        Cell[] cells = mill_interface.getCells();
+
+        for (char ch : data.toCharArray()) {
+            mill_interface.set_stone(cells[i], ch);
+            i++;
         }
     }
 

@@ -6,6 +6,7 @@ import java.awt.event.MouseListener;
 public class MyMouseListener implements MouseListener {
     private JLabel label;
     private Cell cell;
+    private Mill_Interface mill_interface;
 
     public MyMouseListener(JLabel label, Cell cell){
         this.label = label;
@@ -27,16 +28,15 @@ public class MyMouseListener implements MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // red circle //
         Color c = new Color(255,255,255);
         label.setBackground(c);
+        label.setIcon(null);
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // red circle //
-        Color c = new Color(0,0,0);
-        label.setBackground(c);
+        if (mill_interface==null) return;
+        label.setIcon(mill_interface.getIcon_black());
     }
 
     @Override
@@ -44,5 +44,9 @@ public class MyMouseListener implements MouseListener {
         if (cell != null) System.out.println(cell.getId());
         else System.out.println(label.getText());
         Client.send_data(String.valueOf(cell.getId()));
+    }
+
+    public void setMill_interface(Mill_Interface mill_interface) {
+        this.mill_interface = mill_interface;
     }
 }
