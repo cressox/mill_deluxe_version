@@ -9,19 +9,6 @@ public class DB_Connector {
     static String databasePassword;
     static Connection con = null;
 
-    public static void main(String[]args) throws SQLException {
-        //open_con("jdbc:mysql://localhost:3306/muehle", "root", "root");
-
-
-//        Map<String, String> tmp_mill = create_game_as_map("1", "4", "5");
-//        change_mill(1, tmp_mill);
-
-//        Map<String, String> tmp_player = create_player_as_map("'1'", "'192.164.178.44'", "'cressox'", "'rte'", null, null, null, "'black'");
-//        change_player(1, tmp_player);
-
-        //close_con();
-    }
-
     protected int get_count_of_mills(InetAddress ip) throws SQLException {
         String sql = "SELECT MAX(Id) FROM game";
         open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
@@ -49,65 +36,93 @@ public class DB_Connector {
         databseUserName = db_user;
         databasePassword = db_user_pw;
         con = DriverManager.getConnection(MySQLURL, databseUserName, databasePassword);
-//        System.out.println("new DB_CON from CH of " + ip.getHostAddress());
+        System.out.println("new DB_CON from CH of " + ip.getHostAddress());
     }
 
     protected void close_con(InetAddress ip) throws SQLException {
-//        System.out.println("closed DB_CON from CH of " + ip.getHostAddress());
+        System.out.println("closed DB_CON from CH of " + ip.getHostAddress());
         con.close();
     }
 
-    protected void insert_stone(int id) throws SQLException {
+    protected void insert_stone(int id, InetAddress ip) throws SQLException {
         String sql = "INSERT INTO `stone` (`id`, `in_game`, `tmp_lines`, `tmp_index`) VALUES (" + id + ", false, NULL, NULL)";
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
-        System.out.println(sql);
     }
 
-    protected void insert_player(String color, int id) throws SQLException {
-        Map<String, String> player = get_player(id); // check if player exists
+    protected void insert_player_old(String color, int id, InetAddress ip) throws SQLException {
+        Map<String, String> player = get_player_by_id(id, ip); // check if player exists
         if (player==null || player.isEmpty()){ // player doesnt exist
             String sql = "INSERT INTO `player` (`id`, `color`, `stones_in`, `stones_out`, `ip`, `pw`, `username`, `online`) VALUES ('" + id + "', '" + color + "', '0', '9', NULL, NULL, NULL, '0')";
             CallableStatement pst = con.prepareCall(sql);
             for (int i = 1; i <= 9; i++) {
-                insert_stone(i + ((id - 1) * 9));
+                insert_stone(i + ((id - 1) * 9), ip);
             }
             pst.execute();
             pst.close();
             System.out.println(sql);
         } else { // player exists
-            activate_player(id);
+            activate_player(id, ip);
         }
     }
 
-    protected void activate_player(int player_id) throws SQLException {
+    protected void insert_player(int id, String color, int stones_in, int stones_out, InetAddress ip, String pw, String username, boolean online) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+        Map<String, String> player = get_player_by_id(id, ip); // check if player exists
+        if (player==null || player.isEmpty()){ // player doesnt exist
+            String sql = "INSERT INTO `player` (" +
+                    "`id`, `color`, `stones_in`, `stones_out`, `ip`, `pw`, `username`, `online`) " +
+                    "VALUES ('" + id + "', '" + color + "', '" + stones_in + "', '" + stones_out + "'," +
+                    "'" + ip.getHostAddress() + "', '" + pw + "', '" + username + "', '" + (online ? 1 : 0) + "')";
+            CallableStatement pst = con.prepareCall(sql);
+            for (int i = 1; i <= 9; i++) {
+                insert_stone(i + ((id - 1) * 9), ip);
+            }
+            pst.execute();
+            pst.close();
+            System.out.println(sql);
+        } else { // player exists
+            activate_player(id, ip);
+        }
+        this.close_con(ip);
+    }
+
+    protected void activate_player(int player_id, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
         String sql = "update player set online=true where id=" + player_id;
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
         System.out.println(sql);
+        this.close_con(ip);
     }
 
-    protected void deactivate_player(int player_id) throws SQLException {
+    protected void deactivate_player(int player_id, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
         String sql = "update player set online=false where id=" + player_id;
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
         System.out.println(sql);
+        this.close_con(ip);
     }
 
-    protected void insert_mill(int id, int id_p1, int id_p2) throws SQLException {
-        insert_player("white", id_p1);
-        insert_player("black", id_p2);
+    protected void insert_mill(int id, int id_p1, int id_p2, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+        insert_player_old("white", id_p1, ip);
+        insert_player_old("black", id_p2, ip);
         String sql = "INSERT INTO `game` (`id`, `running`, `player_one`, `player_two`) VALUES ('" + id + "', '1', '" + id_p1 + "', '" + id_p2 + "')";
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
         System.out.println(sql);
+        this.close_con(ip);
     }
 
-    protected Map get_mill(int mill_id) throws SQLException {
+    private Map get_mill(int mill_id, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+
         // check if row exists //
         String sql = "SELECT * FROM game WHERE id = " + mill_id;
 
@@ -136,7 +151,9 @@ public class DB_Connector {
         return myResSet;
     }
 
-    protected Map get_player(int player_id) throws SQLException {
+    private Map get_player_by_id(int player_id, InetAddress ip) throws SQLException {
+        if (con==null) this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+
         String sql = "SELECT * FROM player WHERE id = " + player_id;
 
         Statement stmt = con.createStatement();
@@ -148,7 +165,7 @@ public class DB_Connector {
 
         while (rs.next()){
             int id = rs.getInt("id");
-            String ip = rs.getString("ip");
+            String tmp_ip = rs.getString("ip");
             String pw = rs.getString("pw");
             String username = rs.getString("username");
             Boolean online = rs.getBoolean("online");
@@ -157,7 +174,7 @@ public class DB_Connector {
             String color = rs.getString("color");
 
             myResSet.put("id", String.valueOf(id));
-            myResSet.put("ip", ip);
+            myResSet.put("ip", tmp_ip);
             myResSet.put("username", username);
             myResSet.put("pw", pw);
             myResSet.put("online", String.valueOf(online));
@@ -172,7 +189,46 @@ public class DB_Connector {
         return myResSet;
     }
 
-    protected void delete_stone(int id) throws SQLException {
+    private Map get_player_by_username(String player_username, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+
+        String sql = "SELECT * FROM player WHERE username = '" + player_username + "'";
+
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+
+        if (rs==null) return null;
+
+        Map<String, String> myResSet = new HashMap();
+
+        while (rs.next()){
+            int id = rs.getInt("id");
+            String tmp_ip = rs.getString("ip");
+            String pw = rs.getString("pw");
+            String username = rs.getString("username");
+            Boolean online = rs.getBoolean("online");
+            String stones_in = rs.getString("stones_in");
+            String stones_out = rs.getString("stones_out");
+            String color = rs.getString("color");
+
+            myResSet.put("id", String.valueOf(id));
+            myResSet.put("ip", tmp_ip);
+            myResSet.put("username", username);
+            myResSet.put("pw", pw);
+            myResSet.put("online", String.valueOf(online));
+            myResSet.put("stones_in", stones_in);
+            myResSet.put("stones_out", stones_out);
+            myResSet.put("color", color);
+            if (username == player_username) return myResSet;
+        }
+
+        rs.close();
+        stmt.close();
+
+        return myResSet;
+    }
+
+    protected void delete_stone(int id, InetAddress ip) throws SQLException {
         String sql = "delete from " + "stone" + " where id=" + id;
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
@@ -180,35 +236,39 @@ public class DB_Connector {
         System.out.println(sql);
     }
 
-    protected void delete_player(int id) throws SQLException {
+    protected void delete_player(int id, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+
         for (int i=1; i<=9; i++){
-            delete_stone(i + ((id-1)*9));
+            delete_stone(i + ((id-1)*9), ip);
         }
         String sql = "delete from " + "player" + " where id=" + id;
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
         System.out.println(sql);
+        this.close_con(ip);
+
     }
 
-    protected void delete_mill(int id, boolean only_game) throws SQLException {
-        Map<String, String> tmp_vals = get_mill(id);
-        if (!only_game){ // deleting players
-            delete_player(Integer.parseInt(tmp_vals.get("p1")));
-            delete_player(Integer.parseInt(tmp_vals.get("p2")));
-        } else{ // setting players offline
-            deactivate_player(Integer.parseInt(tmp_vals.get("p1")));
-            deactivate_player(Integer.parseInt(tmp_vals.get("p2")));
-        }
+    protected void delete_mill(int id, boolean only_game, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+
+        Map<String, String> tmp_vals = get_mill(id, ip);
+        deactivate_player(Integer.parseInt(tmp_vals.get("p1")), ip);
+        deactivate_player(Integer.parseInt(tmp_vals.get("p2")), ip);
         String sql = "delete from " + "game" + " where id=" + id;
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
         System.out.println(sql);
+        this.close_con(ip);
     }
 
-    protected void change_player(int id, Map<String, String> values) throws SQLException {
-        Map<String, String> player_values = get_player(id);
+    protected void change_player(int id, Map<String, String> values, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+
+        Map<String, String> player_values = get_player_by_id(id, ip);
         // CURRENT VALUES //
 
         String sql = "update player set " +
@@ -261,10 +321,13 @@ public class DB_Connector {
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
+        this.close_con(ip);
     }
 
-    protected void change_mill(int id, Map<String, String> values) throws SQLException {
-        Map<String, String> mill_values = get_mill(id);
+    protected void change_mill(int id, Map<String, String> values, InetAddress ip) throws SQLException {
+        this.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+
+        Map<String, String> mill_values = get_mill(id, ip);
         // CURRENT VALUES //
 
         String sql = "update game set" +
@@ -290,10 +353,12 @@ public class DB_Connector {
         CallableStatement pst = con.prepareCall(sql);
         pst.execute();
         pst.close();
+        this.close_con(ip);
     }
 
     protected Map<String, String> create_player_as_map(String id, String ip, String username, String pw,
                                              Boolean online, String stones_out, String stones_in, String color){
+
         Map<String, String> tmp_map = new HashMap<String, String>();
         tmp_map.put("id", id);
         tmp_map.put("ip", ip);
@@ -312,6 +377,24 @@ public class DB_Connector {
         tmp_map.put("p1", p1);
         tmp_map.put("p2", p2);
         return tmp_map;
+    }
+
+
+    // GETTER //
+    public Map<String, String> getPlayerByID(int id, InetAddress ip) throws SQLException {
+        Map<String, String> tmp = get_player_by_id(id, ip);
+        this.close_con(ip);
+        return tmp;
+    }
+    public Map<String, String> getPlayerByUsername(String username, InetAddress ip) throws SQLException {
+        Map<String, String> tmp = get_player_by_username(username, ip);
+        this.close_con(ip);
+        return tmp;
+    }
+    public Map<String, String> getMillByID(int id, InetAddress ip) throws SQLException {
+        Map<String, String> tmp = get_mill(id, ip);
+        this.close_con(ip);
+        return tmp;
     }
 
 }

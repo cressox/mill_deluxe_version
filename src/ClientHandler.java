@@ -87,7 +87,7 @@ class ClientHandler {
     void disconnect() throws SQLException {
         if (mill_id!=-1) {
             db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-            Map<String, String> mill = db_con.get_mill(mill_id);
+            Map<String, String> mill = db_con.getMillByID(mill_id, ip);
             System.out.println(mill_id);
             System.out.println(mill);
             db_con.close_con(ip);
@@ -98,7 +98,7 @@ class ClientHandler {
             } else {
                 System.out.println("delete mill");
                 db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-                db_con.delete_mill(Integer.parseInt(mill.get("id")), true);
+                db_con.delete_mill(Integer.parseInt(mill.get("id")), true, ip);
                 db_con.close_con(ip);
             }
             System.out.println("closed CH_CON to client " + ip.getHostAddress());
@@ -107,13 +107,15 @@ class ClientHandler {
 
     // update via db //
     void update(String client_request) throws SQLException {
+        // get values from logic //
+        // than push to db //
 
 
         db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
         // database acsess //
 
         // current game data //
-        Map<String, String> mill = db_con.get_mill(id);
+        Map<String, String> mill = db_con.getMillByID(id, ip);
 
         // if mill doesnt exist anymore (cause other client dyed)
         // than check that and disconnect
@@ -125,10 +127,10 @@ class ClientHandler {
             int id_p2 = Integer.parseInt(mill.get("p2"));
 //        System.out.println(mill);
 
-            Map<String, String> p1 = db_con.get_player(id_p1);
+            Map<String, String> p1 = db_con.getPlayerByID(id_p1, ip);
 //        System.out.println(p1);
 
-            Map<String, String> p2 = db_con.get_player(id_p2);
+            Map<String, String> p2 = db_con.getPlayerByID(id_p2, ip);
 //        System.out.println(p2);
         }
 

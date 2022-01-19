@@ -1,18 +1,39 @@
 import javax.swing.*;
+import java.awt.event.WindowEvent;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.sql.SQLException;
+import java.util.Map;
 
 public class Login {
+    static InetAddress ip;
+
+    static {
+        try {
+            ip = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static DB_Connector db_con = new DB_Connector();
     static JFrame ROOT;
     static JButton submit = new JButton();
     static JButton back = new JButton();
 
-    static JLabel login_or_register;
+    static JLabel login_or_register_screen;
     static JButton login = new JButton();
     static JButton register = new JButton();
 
     static JLabel login_screen;
     static JLabel register_screen;
-    static JTextField user = new JTextField();
-    static JTextField password = new JTextField();
+    static JTextField user_label = new JTextField();
+    static JTextField password_label = new JTextField();
+
+    static JLabel info = new JLabel();
+
+    public Login() throws UnknownHostException {
+    }
 
     public static void main(String[] args) {
         draw();
@@ -24,14 +45,15 @@ public class Login {
         ROOT.setSize(500, 200);
         ROOT.setLocationRelativeTo(null);
 
-        user = new JTextField();
-        password = new JTextField();
+        user_label = new JTextField();
+        password_label = new JTextField();
         submit = new JButton();
 
         // login or register screen //
-        login_or_register = new JLabel();
-        add_btn(login, login_or_register, "login", (int) (ROOT.getWidth()*0.25),  (int) (ROOT.getHeight()*0.20), 200, 30);
-        add_btn(register, login_or_register, "register", (int) (ROOT.getWidth()*0.25),  (int) (ROOT.getHeight()*0.45), 200, 30);
+        login_or_register_screen = new JLabel();
+        add_label(info, login_or_register_screen, "welcome to the server", (int) (ROOT.getWidth()*0.25),  (int) (ROOT.getHeight()*0.60), 200, 30);
+        add_btn(login, login_or_register_screen, "login", (int) (ROOT.getWidth()*0.25),  (int) (ROOT.getHeight()*0.20), 200, 30);
+        add_btn(register, login_or_register_screen, "register", (int) (ROOT.getWidth()*0.25),  (int) (ROOT.getHeight()*0.45), 200, 30);
 
         // function of the btn //
         login.addActionListener(e -> login_fkt());
@@ -40,7 +62,7 @@ public class Login {
 
     public static void draw(){
         init();
-        ROOT.add(login_or_register);
+        ROOT.add(login_or_register_screen);
         ROOT.setVisible(true);
     }
 
@@ -75,41 +97,98 @@ public class Login {
 
         // update ui //
         ROOT.repaint();
+        ROOT.revalidate();
         label_to_add.repaint();
         label_to_add.revalidate();
     }
 
+    public static void back(){
+        ROOT.dispatchEvent(new WindowEvent(ROOT, WindowEvent.WINDOW_CLOSING));
+        draw();
+    }
+
     public static void login_fkt(){
+        ROOT.setTitle("login on the server");
+
         // prepare submit btn //
-        submit.addActionListener(e -> submit_fkt(false));
-        back.addActionListener(e -> switch_content(login_or_register, login_screen));
+        submit.addActionListener(e -> {
+            try {
+                db_login(user_label.getText(), password_label.getText());
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        });
+        submit.revalidate();
+//        back.addActionListener(e -> switch_content(login_or_register_screen, login_screen));
 
         // login screen //
         login_screen = new JLabel();
-        add_txt(user, login_screen, "username", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.20), 200, 30);
-        add_txt(password, login_screen, "password", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.45), 200, 30);
+        add_txt(user_label, login_screen, "username", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.20), 200, 30);
+        add_txt(password_label, login_screen, "password", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.45), 200, 30);
         add_btn(submit, login_screen, "submit",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.45), 100, 30);
-        add_btn(back, login_screen, "back",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.20), 100, 30);
+//        add_btn(back, login_screen, "back",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.20), 100, 30);
 
-        switch_content(login_screen, login_or_register);
+        switch_content(login_screen, login_or_register_screen);
     }
 
     public static void register_fkt(){
+        ROOT.setTitle("register on the server");
+
         // prepare submit btn //
-        submit.addActionListener(e -> submit_fkt(true));
-        back.addActionListener(e -> switch_content(login_or_register, register_screen));
+        submit.addActionListener(e -> {
+            try {
+                db_register(user_label.getText(), password_label.getText());
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        });
+        submit.revalidate();
+//        back.addActionListener(e -> switch_content(login_or_register_screen, register_screen));
 
         // register screen //
         register_screen = new JLabel();
-        add_txt(user, register_screen, "username", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.20), 200, 30);
-        add_txt(password, register_screen, "password", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.45), 200, 30);
+        add_txt(user_label, register_screen, "username", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.20), 200, 30);
+        add_txt(password_label, register_screen, "password", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.45), 200, 30);
         add_btn(submit, register_screen, "submit",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.45), 100, 30);
-        add_btn(back, register_screen, "back",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.20), 100, 30);
+//        add_btn(back, register_screen, "back",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.20), 100, 30);
 
-        switch_content(register_screen, login_or_register);
+        switch_content(register_screen, login_or_register_screen);
     }
 
-    public static void submit_fkt(boolean register){
+    public static void db_login(String username, String password) throws SQLException {
+        Map<String, String> user =  db_con.getPlayerByUsername(username, ip);
+        if (user==null ||user.isEmpty()){
+            password_label.setText("unknown user");
+        }else{
+            if (!user.get("pw").equals(password)){
+                System.out.println(password);
+                System.out.println(user.get("pw"));
+                password_label.setText("wrong password");
+            }else {
+                System.out.println(user.get("online"));
+                if (user.get("online").equals("false")) {
+                    db_con.activate_player(Integer.parseInt(user.get("id")), ip);
+                    password_label.setText("logged in");
+                }else {
+                    password_label.setText("already logged in from ip: " + user.get("ip"));
+                }
+            }
+        }
+    }
+
+    public static void db_register(String username, String password) throws SQLException {
+        Map<String, String> user =  db_con.getPlayerByUsername(username, ip);
+        if (user==null || user.isEmpty()){
+            int num_of_players = db_con.get_count_of_players(ip);
+            System.out.println(password_label.getText() + " " + user_label.getText());
+            db_con.insert_player(num_of_players + 1 , "", 0, 9, ip, password, username, true);
+            password_label.setText("registered");
+        }else{
+            password_label.setText("already registered pls log in");
+        }
+
+
+
 
     }
 }

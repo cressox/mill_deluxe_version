@@ -56,9 +56,7 @@ class Server {
 
                 if (clients[0] != null && clients[1] != null){
                     mill_games++;
-                    db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-                    db_con.insert_mill(mill_games, clients[0].getId(), clients[1].getId());
-                    db_con.close_con(ip);
+                    db_con.insert_mill(mill_games, clients[0].getId(), clients[1].getId(), ip);
                     tmp_lgc = new Logic(mill_games);
                     init_lgc(mill_games, ip);
                     clients[1].setLgc(tmp_lgc);
@@ -95,29 +93,23 @@ class Server {
     }
 
     static void init_lgc(int mill_id, InetAddress ip) throws SQLException {
-        db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-        // database acsess //
-
         // current game data //
-        Map<String, String> mill = db_con.get_mill(mill_id);
+        Map<String, String> mill = db_con.getMillByID(mill_id, ip);
         int id_p1 = Integer.parseInt(mill.get("p1"));
         int id_p2 = Integer.parseInt(mill.get("p2"));
         System.out.println(mill);
 
-        Map<String, String> p1 = db_con.get_player(id_p1);
+        Map<String, String> p1 = db_con.getPlayerByID(id_p1, ip);
         String color_p1 = p1.get("color");
         System.out.println(p1);
 
-        Map<String, String> p2 = db_con.get_player(id_p2);
+        Map<String, String> p2 = db_con.getPlayerByID(id_p2, ip);
         String color_p2 = p2.get("color");
         System.out.println(p2);
 
 //        System.out.println(tmp_lgc.getP1());
         tmp_lgc.init(id_p1, id_p2, color_p1, color_p2);
 //        System.out.println(tmp_lgc.getP1());
-
-        db_con.close_con(ip);
-        // close db_con //
 
         // debug the current values //
         System.out.println("active mill games in db: " + mill_games);
