@@ -379,6 +379,20 @@ public class DB_Connector {
         return tmp_map;
     }
 
+    protected void wipe(InetAddress ip, String table) throws SQLException {
+        open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+        String sql = "delete from " + table;
+        CallableStatement pst = con.prepareCall(sql);
+        pst.execute();
+        pst.close();
+        close_con(ip);
+    }
+
+    protected void wipe_all(InetAddress ip) throws SQLException {
+        wipe(ip, "game");
+        wipe(ip, "player");
+        wipe(ip, "stone");
+    }
 
     // GETTER //
     public Map<String, String> getPlayerByID(int id, InetAddress ip) throws SQLException {

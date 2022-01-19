@@ -36,7 +36,7 @@ public class Login {
     public Login() throws UnknownHostException {
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         draw();
     }
 
@@ -113,13 +113,15 @@ public class Login {
         ROOT.setTitle("login on the server");
 
         // prepare submit btn //
-        submit_login.addActionListener(e -> {
-            try {
-                db_login(user_label.getText(), password_label.getText());
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        });
+        if (submit_login.getActionListeners().length==0) {
+            submit_login.addActionListener(e -> {
+                try {
+                    db_login(user_label.getText(), password_label.getText());
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            });
+        }
         submit_login.revalidate();
         back.addActionListener(e -> switch_content(login_or_register_screen, login_screen));
 
@@ -137,13 +139,15 @@ public class Login {
         ROOT.setTitle("register on the server");
 
         // prepare submit btn //
-        submit_register.addActionListener(e -> {
-            try {
-                db_register(user_label.getText(), password_label.getText());
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        });
+        if (submit_register.getActionListeners().length==0) {
+            submit_register.addActionListener(e -> {
+                try {
+                    db_register(user_label.getText(), password_label.getText());
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            });
+        }
         submit_register.revalidate();
         back.addActionListener(e -> switch_content(login_or_register_screen, register_screen));
 
@@ -183,7 +187,7 @@ public class Login {
         if (user==null || user.isEmpty()){
             int num_of_players = db_con.get_count_of_players(ip);
             System.out.println(password_label.getText() + " " + user_label.getText());
-            db_con.insert_player(num_of_players + 1 , "", 0, 9, ip, password, username, true);
+            //db_con.insert_player(num_of_players + 1 , "", 0, 9, ip, password, username, false);
             password_label.setText("registered");
         }else{
             password_label.setText("already registered pls log in");
