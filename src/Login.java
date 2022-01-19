@@ -18,7 +18,8 @@ public class Login {
 
     static DB_Connector db_con = new DB_Connector();
     static JFrame ROOT;
-    static JButton submit = new JButton();
+    static JButton submit_login = new JButton();
+    static JButton submit_register = new JButton();
     static JButton back = new JButton();
 
     static JLabel login_or_register_screen;
@@ -47,7 +48,8 @@ public class Login {
 
         user_label = new JTextField();
         password_label = new JTextField();
-        submit = new JButton();
+        submit_login = new JButton();
+        submit_register = new JButton();
 
         // login or register screen //
         login_or_register_screen = new JLabel();
@@ -111,22 +113,22 @@ public class Login {
         ROOT.setTitle("login on the server");
 
         // prepare submit btn //
-        submit.addActionListener(e -> {
+        submit_login.addActionListener(e -> {
             try {
                 db_login(user_label.getText(), password_label.getText());
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         });
-        submit.revalidate();
-//        back.addActionListener(e -> switch_content(login_or_register_screen, login_screen));
+        submit_login.revalidate();
+        back.addActionListener(e -> switch_content(login_or_register_screen, login_screen));
 
         // login screen //
         login_screen = new JLabel();
         add_txt(user_label, login_screen, "username", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.20), 200, 30);
         add_txt(password_label, login_screen, "password", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.45), 200, 30);
-        add_btn(submit, login_screen, "submit",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.45), 100, 30);
-//        add_btn(back, login_screen, "back",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.20), 100, 30);
+        add_btn(submit_login, login_screen, "submit",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.45), 100, 30);
+        add_btn(back, login_screen, "back",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.20), 100, 30);
 
         switch_content(login_screen, login_or_register_screen);
     }
@@ -135,22 +137,22 @@ public class Login {
         ROOT.setTitle("register on the server");
 
         // prepare submit btn //
-        submit.addActionListener(e -> {
+        submit_register.addActionListener(e -> {
             try {
                 db_register(user_label.getText(), password_label.getText());
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         });
-        submit.revalidate();
-//        back.addActionListener(e -> switch_content(login_or_register_screen, register_screen));
+        submit_register.revalidate();
+        back.addActionListener(e -> switch_content(login_or_register_screen, register_screen));
 
         // register screen //
         register_screen = new JLabel();
         add_txt(user_label, register_screen, "username", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.20), 200, 30);
         add_txt(password_label, register_screen, "password", (int) (ROOT.getWidth()*0.25), (int) (ROOT.getHeight()*0.45), 200, 30);
-        add_btn(submit, register_screen, "submit",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.45), 100, 30);
-//        add_btn(back, register_screen, "back",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.20), 100, 30);
+        add_btn(submit_register, register_screen, "submit",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.45), 100, 30);
+        add_btn(back, register_screen, "back",(int) (ROOT.getWidth()*0.65),(int) (ROOT.getHeight()*0.20), 100, 30);
 
         switch_content(register_screen, login_or_register_screen);
     }

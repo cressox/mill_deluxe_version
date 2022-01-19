@@ -1,6 +1,8 @@
-login.register
-
 logic.interpret data
+    gewinnen
+    verlieren
+    aufgeben
+    neustarten
 
 mill game close after connection lost
 
@@ -8,3 +10,6 @@ lobby room
     online user
     play btn
     disconnect btn
+
+representation of mill game via string
+"------------------------"
