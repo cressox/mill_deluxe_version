@@ -2,7 +2,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 
 // Client class
 class Client {
@@ -21,7 +23,7 @@ class Client {
     private static BufferedReader in;
     private static boolean should_receive = true;
     private static boolean logged_in = true;
-    private static mySocket socket;
+    private static Socket socket;
     private static Mill_Interface mill_interface = new Mill_Interface();
     private static Player player;
 
@@ -35,9 +37,9 @@ class Client {
         //new Thread(Client::check_if_logged_in).start(); // encapsulated vom main thread check if logged in
     }
 
-    public static void connect_to_server(int player_id, int mill_id){
+    public static void connect_to_server(){
         try {
-            socket = new mySocket("localhost", 1234, player_id, mill_id);
+            socket = new Socket("localhost", 1234);
             // writing to server
             out = new PrintWriter(
                     socket.getOutputStream(), true);
@@ -65,12 +67,21 @@ class Client {
                 // interpretation //
 
                 if (data != null) {
-                    System.out.println(data);
-
+                    if (data.contains("lobby")){ // game dies, back to lobby
+                        // winning by quit of the other player
+                        login.getLobby().draw(); // paint lobby
+                    }else if (data.contains("join")){
+                        mill_interface.draw();
+                    }else if (data.contains("start")){
+                        mill_interface.draw();
+                    }
+                    else {
+                        interpret_incomming_data(data);
+                    }
                 } else { // server dead
                     should_receive = false;
                 }
-            } catch (IOException e) { // could be server dead
+            } catch (IOException | SQLException e) { // could be server dead
                 e.printStackTrace();
                 should_receive = false;
             }
@@ -78,12 +89,12 @@ class Client {
     }
 
     // INTERPRET DATA FROM CH //
-    public void interpret_incomming_data(String data){
-        int i = 0;
-        Cell[] cells = mill_interface.getCells();
+    public static void interpret_incomming_data(String data){
+        System.out.println(data);
 
+        int i = 0;
         for (char ch : data.toCharArray()) {
-            mill_interface.set_stone(cells[i], ch);
+            mill_interface.set_stone(i, ch);
             i++;
         }
     }

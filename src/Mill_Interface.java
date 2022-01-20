@@ -174,19 +174,22 @@ public class Mill_Interface {
         MAIN_FRAME.setVisible(true);
     }
 
-    void set_stone(Cell c, char ch){
+    void set_stone(int i, char ch){
         switch(ch){
             case 'b' ->{
-                c.getLabel().setIcon(icon_black);
-                c.getLabel().setVisible(true);
+                cells[i].getLabel().setIcon(icon_black);
+                cells[i].getLabel().setVisible(true);
+                cells[i].setIs_empty(false);
             }
             case 'w' ->{
-                c.getLabel().setIcon(icon_white);
-                c.getLabel().setVisible(true);
+                cells[i].getLabel().setIcon(icon_white);
+                cells[i].getLabel().setVisible(true);
+                cells[i].setIs_empty(false);
             }
             case 'n' ->{
-                c.getLabel().setIcon(null);
-                c.getLabel().setVisible(false);
+                System.out.println();
+                cells[i].getLabel().setIcon(null);
+                cells[i].setIs_empty(true);
             }
         }
 

@@ -187,7 +187,15 @@ public class DB_Connector {
             pst.close();
             System.out.println(sql);
         }
-        this.close_con(ip);
+
+        Map<String, String> tmpPlayer = get_player_by_id(id_p1, ip);
+        Map<String, String> newPlayer = create_player_as_map(
+                tmpPlayer.get("id"), tmpPlayer.get("ip"), tmpPlayer.get("username"),
+                tmpPlayer.get("pw"), true, tmpPlayer.get("stones_out"), tmpPlayer.get("stones_in"),
+                tmpPlayer.get("color"), ("in game " + id), String.valueOf(id));
+        change_player(id_p1, newPlayer, ip);
+
+        if (con!=null) this.close_con(ip);
     }
 
     private Map get_mill(int mill_id, InetAddress ip) throws SQLException {

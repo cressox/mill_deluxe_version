@@ -274,6 +274,7 @@ public class Logic {
             int num_of_same_stones_in_line = 0;
             for (Cell tmpCell : cells){
                 if (Arrays.asList(tmpCell.getLines()).contains(line) && !tmpCell.isIs_empty()){ // cell in cells has same line and cell cant be empty
+                    if (tmpCell.getStone().getColor()==null) continue;
                     if ((tmpCell.getStone().getColor().equals(color))){ // same stone color
                         num_of_same_stones_in_line++; // one stone more in line
 //                        System.out.println("cell "+tmpCell.getId()+" has same color on line "+line);

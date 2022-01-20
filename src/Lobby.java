@@ -37,14 +37,18 @@ public class Lobby{
     static JScrollPane scroll_pane_players;
     static JTable table;
 
+    static JButton start_btn = new JButton();
+
+
     static String[][] data;
 
-//    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException {
+        db_con.wipe_all(ip);
 //        draw();
-//    }
+    }
 
     static void draw() throws SQLException {
-        ROOT.setSize(900, 400);
+        ROOT.setSize(900, 500);
         init();
         Map<String, String> player = db_con.getPlayerByID(user_id, ip);
         ROOT.setTitle("Welcome " + player.get("username") + " in the lobby choose a game to join!");
@@ -52,6 +56,7 @@ public class Lobby{
 
         ROOT.add(LEFT_panel);
         ROOT.add(RIGHT_panel);
+        ROOT.add(start_btn);
         ROOT.getContentPane().setBackground(new Color(238, 238, 238));
         ROOT.setLocationRelativeTo(null);
         ROOT.setVisible(true);
@@ -64,6 +69,7 @@ public class Lobby{
         double margin_top_left = 0.025;
         int margin_tl = (int) (ROOT.getWidth()*margin_top_left);
 
+        create_start_btn();
         create_table_of_online_user();
         create_table_of_games();
 
@@ -74,13 +80,29 @@ public class Lobby{
 
     }
 
+    static void create_start_btn(){
+        // start btn //
+        start_btn.setBounds(10,350, 860, 100);
+        start_btn.setText("start a new mill game and wait for players to join");
+        start_btn.setOpaque(true);
+        start_btn.setVisible(true);
+        start_btn.addActionListener(e -> {
+            Client.send_data("start");
+            try {
+                update_all();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        });
+    }
+
     static void create_table_of_games() throws SQLException {
         games_panel.setLayout(new GridLayout());
-        db_con.insert_mill(1, 1, -1, ip);
-        db_con.insert_mill(2, 2, -1, ip);
-        db_con.insert_mill(3, 3, -1, ip);
-        db_con.insert_mill(4, 4, -1, ip);
-        db_con.insert_mill(5, 5, -1, ip);
+//        db_con.insert_mill(1, 1, -1, ip);
+//        db_con.insert_mill(2, 2, -1, ip);
+//        db_con.insert_mill(3, 3, -1, ip);
+//        db_con.insert_mill(4, 4, -1, ip);
+//        db_con.insert_mill(5, 5, -1, ip);
         int[] players_waiting = db_con.get_player_in_game_ids(ip);
 
 
@@ -113,16 +135,19 @@ public class Lobby{
 
     static void set_waiting_games_in_label(JPanel label, int[] player_ids_in_game_waiting) throws SQLException {
         int i = 0;
-        for (int player_id : player_ids_in_game_waiting){
+        for (int player_id : player_ids_in_game_waiting) {
             Map<String, String> tmpPlayer = db_con.getPlayerByID(player_id, ip);
-            // picture from https://appoftheday.downloadastro.com/wp-content/uploads/2019/09/The-Mill-App-Icon.png date: 20.01.2022 - 11:45 //
-            add_btn(new JButton(),
-                    games_panel,
-                    ("<html><img src=\"https://appoftheday.downloadastro.com/wp-content/uploads/2019/09/The-Mill-App-Icon.png\"" +
-                            "width=\"150\" height=\"150\"><br/>join mill game " + tmpPlayer.get("mill_id") + " now!<br/" +
-                            "<br/><br/>player:<br/>" + tmpPlayer.get("username") +"<br/><br/>is waiting 1/2</html>"),
-                    Integer.parseInt(tmpPlayer.get("mill_id")));
-            i++;
+            if (tmpPlayer.get("mill_id") == null) { // no game running with this player
+            } else {
+                // picture from https://appoftheday.downloadastro.com/wp-content/uploads/2019/09/The-Mill-App-Icon.png date: 20.01.2022 - 11:45 //
+                add_btn(new JButton(),
+                        games_panel,
+                        ("<html><img src=\"https://appoftheday.downloadastro.com/wp-content/uploads/2019/09/The-Mill-App-Icon.png\"" +
+                                "width=\"150\" height=\"150\"><br/>join mill game " + tmpPlayer.get("mill_id") + " now!<br/" +
+                                "<br/><br/>player:<br/>" + tmpPlayer.get("username") + "<br/><br/>is waiting 1/2</html>"),
+                        Integer.parseInt((tmpPlayer.get("mill_id"))));
+                i++;
+            }
         }
     }
     public static void add_btn(JButton btn_to_add, JPanel panel, String text, int mill_id){
@@ -143,14 +168,14 @@ public class Lobby{
         System.out.println(mill_id_to_join + " " + user_who_wants_to_join_id);
         db_con.set_player_in_game(user_who_wants_to_join_id, mill_id_to_join, ip);
         update_all();
-        mill_interface = new Mill_Interface();
-        mill_interface.draw();
+//        mill_interface = new Mill_Interface();
+//        mill_interface.draw();
 
         // CONNECT TO SERVER //
         // needs create function too //
 
-
-        Client.connect_to_server(user_id, mill_id_to_join);
+        Client.send_data("millId=" + mill_id_to_join);
+        Client.send_data("join");
     }
 
     public static void update_all() throws SQLException {

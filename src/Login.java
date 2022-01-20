@@ -182,7 +182,12 @@ public class Login {
                 if (user.get("online").equals("false")) {
                     db_con.activate_player(Integer.parseInt(user.get("id")), ip);
                     password_label.setText("logged in");
+
+                    Client.connect_to_server();
+                    Client.send_data("id=" + Integer.parseInt(user.get("id"))); // send user id to ch
+
                     lobby = new Lobby(Integer.parseInt(user.get("id")));
+                    System.out.println(Integer.parseInt(user.get("id")));
                     lobby.draw();
                 }else {
                     password_label.setText("already logged in from ip: " + user.get("ip"));
