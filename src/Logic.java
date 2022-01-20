@@ -29,8 +29,8 @@ public class Logic {
     }
 
     public void init(int id_p1, int id_p2, String color_p1, String color_p2){
-        p1 = new Player(id_p1, color_p1, "", "");
-        p2 = new Player(id_p2, color_p2, "", "");
+        p2 = new Player(id_p1, color_p1, "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black.png", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black-red.png");
+        p1 = new Player(id_p2, color_p2, "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white.png", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white-red.png");
         init_cells();
     }
 
@@ -94,17 +94,25 @@ public class Logic {
     }
 
     public boolean interpret_client_request(String data) {
-        int cell_id = Integer.parseInt(data);
+        int cell_id;
+        String cell_player_color;
+        if (data.contains("white")) {
+            cell_id = Integer.parseInt(data.replace("white", ""));
+            cell_player_color = "white";
+        } else {
+            cell_id = Integer.parseInt(data.replace("black", ""));
+            cell_player_color = "black";
+        }
         switch (stage) {
             case 1 -> {
                 System.out.println(data);
                 System.out.println(Arrays.toString(cells));
-                first_stage(cells[cell_id]);
+                first_stage(cells[cell_id], cell_player_color);
             }
             case 2 -> {
                 System.out.println(data);
                 System.out.println(Arrays.toString(cells));
-                second_stage(cells[cell_id]);
+                second_stage(cells[cell_id], cell_player_color);
             }
         }
         return true;
@@ -116,7 +124,7 @@ public class Logic {
             if (cell.getStone() == null){
                 result_string += "n";
             }
-            else if (cell.getStone().getColor() == "white"){
+            else if (cell.getStone().getColor().equals("white")){
                 result_string += "w";
             }
             else {
@@ -134,16 +142,11 @@ public class Logic {
         }
     }
 
-    void start_game(Muehle m){
-        boolean game_is_running = true; // if game is over it switches to false
-        setStage(1);
-    }
-
-    void first_stage(Cell c){
+    void first_stage(Cell c, String cell_player_color){
         System.out.println(p1.getStones_to_set() + "" + p2.getStones_to_set());
         if (p1.getStones_to_set() == 0 && p2.getStones_to_set() == 0){ // stage one ends and the second stage starts cause no stones to set left
             setStage(2);
-            second_stage(c);
+            second_stage(c, cell_player_color);
         } else{
             if (isMill){
                 if (c.getStone() != null && c.getStone().getColor() != p1.getColor()){
@@ -156,15 +159,25 @@ public class Logic {
                 }
             }
 
-            else if (p1.set_stone(c)){
-                if (is_mill(c)){ // mühle
-                    isMill = true;
+            else if (cell_player_color.equals("white")){
+                if(p2.set_stone(c, cell_player_color)) {
+                    System.out.println(cell_player_color + " p1");
+                    if (is_mill(c)) { // mühle
+                        isMill = true;
+                    }
+                }
+            }else {
+                if(p1.set_stone(c, cell_player_color)) {
+                    System.out.println(cell_player_color + " p2");
+                    if (is_mill(c)) { // mühle
+                        isMill = true;
+                    }
                 }
             }
         }
     }
 
-    void second_stage(Cell c){
+    void second_stage(Cell c, String cell_player_color){
         if (p1.getStones_in_game() <= 3 || p2.getStones_in_game() <= 3){ // stage two ends and the third stage starts cause one of the players have only 3 stones left
             setStage(3);
         }
@@ -238,10 +251,6 @@ public class Logic {
                 }
             }
         }
-    }
-
-    void third_stage(Cell c){
-        second_stage(c);
     }
 
     private boolean only_mills_in_game(Player p){ // checkt ob nur mühlen existieren

@@ -520,6 +520,74 @@ public class DB_Connector {
         wipe(ip, "stone");
     }
 
+    protected void change_player_by_raw_input(int id, String username, String pw,
+                                              Boolean online, int stones_out, int stones_in, String color,
+                                              String status, int mill_id, InetAddress ip) throws SQLException {
+
+        Map<String, String> player_values = get_player_by_id(id, ip);
+        // CURRENT VALUES //
+
+        String sql = "update player set " +
+                "id=" + (id==-1?player_values.get("id"):id) +
+                ", ip='" + (ip==null?player_values.get("ip"):ip.getHostAddress()) +
+                "', username='" + (username==null?player_values.get("username"):username) +
+                "', pw='" + (pw==null?player_values.get("pw"):pw) +
+                "', online=" + (online==null?player_values.get("online"):online) +
+                ", stones_out=" + (stones_out==-1?player_values.get("stones_out"):stones_out) +
+                ", stones_in=" + (stones_in==-1?player_values.get("stones_in"):stones_in) +
+                ", color='" + (color==null?player_values.get("color"):color) +
+                "', status='" + (status==null?player_values.get("status"):status) +
+                "', mill_id=" + (mill_id==-1?player_values.get("mill_id"):mill_id) +
+                " where player.id=" + id;
+        System.out.println(player_values.get("color"));
+        // SQL STRING //
+
+        System.out.println(sql);
+
+        CallableStatement pst = con.prepareCall(sql);
+        pst.execute();
+        pst.close();
+        this.close_con(ip);
+    }
+
+    protected void change_mill_by_raw_input(int id, Map<String, String> values, InetAddress ip) throws SQLException {
+        open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
+
+        Map<String, String> mill_values = get_mill(id, ip);
+        // CURRENT VALUES //
+
+        String sql = "update game set" +
+                " id=" + mill_values.get("id") +
+                ", player_one='" + mill_values.get("p1") +
+                "', player_two='" + mill_values.get("p2") +
+                "', running=" + mill_values.get("running") +
+                " where game.id=" + id;
+        // SQL STRING //
+
+        if(values.get("id")!=null) sql = sql.replaceFirst(
+                "id='" + mill_values.get("id"),
+                "id='" +  values.get("id"));
+
+        if(values.get("running")!=null) sql = sql.replaceFirst(
+                "running=" + mill_values.get("running"),
+                "running=" +  values.get("running"));
+
+        if(values.get("p1")!=null) sql = sql.replaceFirst(
+                "player_one='" + mill_values.get("p1"),
+                "player_one='" +  values.get("p1"));
+
+        if(values.get("p2")!=null) sql = sql.replaceFirst(
+                "player_two='" + mill_values.get("p2"),
+                "player_two='" +  values.get("p2"));
+        // SETTING OPTIONALLY NEW VALUES //
+        System.out.println(sql);
+        CallableStatement pst = con.prepareCall(sql);
+        pst.execute();
+        pst.close();
+        this.close_con(ip);
+    }
+
+
     // GETTER //
     public Map<String, String> getPlayerByID(int id, InetAddress ip) throws SQLException {
         if (con == null) open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
@@ -533,7 +601,6 @@ public class DB_Connector {
         this.close_con(ip);
         return tmp;
     }
-
     public Map<String, String> getMillByID(int id, InetAddress ip) throws SQLException {
         if (con == null) open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
         Map<String, String> tmp = get_mill(id, ip);

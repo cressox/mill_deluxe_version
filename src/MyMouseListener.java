@@ -40,7 +40,13 @@ public class MyMouseListener implements MouseListener {
     public void mouseEntered(MouseEvent e) {
         if (mill_interface==null) return;
         if (cell == null) return;
-        if (cell.isIs_empty()) label.setIcon(mill_interface.getIcon_black());
+        if (cell.isIs_empty()) {
+            if (cell.getColor_of_player().equals("black")){
+                label.setIcon(mill_interface.getIcon_black());
+            }else {
+                label.setIcon(mill_interface.getIcon_white());
+            }
+        }
     }
 
     @Override
@@ -48,7 +54,7 @@ public class MyMouseListener implements MouseListener {
         System.out.println(cell);
         if (cell != null) {
             System.out.println(cell.getId());
-            Client.send_data(String.valueOf(cell.getId()));
+            Client.send_data(cell.getId()+cell.getColor_of_player());
         }
         else System.out.println(label.getText());
     }

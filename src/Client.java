@@ -71,9 +71,9 @@ class Client {
                         // winning by quit of the other player
                         login.getLobby().draw(); // paint lobby
                     }else if (data.contains("join")){
-                        mill_interface.draw();
+                        mill_interface.draw("black");
                     }else if (data.contains("start")){
-                        mill_interface.draw();
+                        mill_interface.draw("white");
                     }
                     else {
                         interpret_incomming_data(data);

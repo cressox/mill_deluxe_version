@@ -33,7 +33,7 @@ public class Mill_Interface {
     int y = -20; // specific offset for cells
 
 
-    void init() throws IOException {
+    void init(String color) throws IOException {
         MAIN_FRAME.getContentPane();
         MAIN_FRAME.setSize(WIDTH + 50, HEIGHT);
         MAIN_FRAME.setLocationRelativeTo(null);
@@ -61,17 +61,17 @@ public class Mill_Interface {
         MyMouseListener ml_nst = new MyMouseListener(neustart);
         neustart.addMouseListener(ml_nst);
 
-        init_cells();
+        init_cells(color);
     }
 
-    void init_cells(){
+    void init_cells(String color){
         // specific values for the cells in relation to the MAIN_FRAME
         int w = MAIN_FRAME.getWidth();
         int h = MAIN_FRAME.getHeight();
 
         // initialise cells as objects in the field cells
         for (int i = 0; i < 24; i++) {
-            cells[i] = new Cell(i);
+            cells[i] = new Cell(i, color);
             MyMouseListener tmp_ml = new MyMouseListener(cells[i].getLabel(), cells[i]);
             tmp_ml.setMill_interface(this);
             cells[i].getLabel().addMouseListener(tmp_ml); // make labels clickable
@@ -157,8 +157,8 @@ public class Mill_Interface {
         cells[23].setLines(new String[]{"c", "b"});
     }
 
-    void draw() throws IOException {
-        init();
+    void draw(String color) throws IOException {
+        init(color);
         // initialise interface
 
         // ADD ALL TO MAIN_LABEL //

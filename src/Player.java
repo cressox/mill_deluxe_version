@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.Objects;
 
 public class Player {
     int id;
@@ -29,14 +28,14 @@ public class Player {
         for (int i=1; i<=9; i++){ // initialise stones as objects in the field stones
             stones[i-1] = new Stone(i + ((id-1)*9), color, this);
         }
-        icon = new ImageIcon(Objects.requireNonNull(this.getClass().getResource(imgUrl)));
-        iconActive = new ImageIcon(Objects.requireNonNull(this.getClass().getResource(imgURLActive)));
+        icon = new ImageIcon(imgUrl);
+        iconActive = new ImageIcon(imgURLActive);
     }
 
     // METHODS //
-    public boolean set_stone(Cell c){ // zelle die angeklickt wurde muss mit übergeben werden um sie zuordnen zu können
+    public boolean set_stone(Cell c, String cell_player_color){ // zelle die angeklickt wurde muss mit übergeben werden um sie zuordnen zu können
         if (getStones_in_game() < 9 && c.isIs_empty()){
-            stones[getStones_in_game()].setIs_set(true); // stein ist siochtbar
+            stones[getStones_in_game()].setIs_set(true); // stein ist sichtbar
             stones[getStones_in_game()].setCell(c); // ordnet stein die zelle zu
 
             c.setIs_empty(false); // zelle ist nicht mehr leer

@@ -151,6 +151,9 @@ class ClientHandler {
         Map<String, String> tmpMill = db_con.getMillByID(mill_game_to_join_by_id, ip); // mill to join
         System.out.println(tmpMill);
 
+        db_con.change_player_by_raw_input(id, null,
+                null, null, -1,-1,"black", null, -1, ip);
+
         Map<String, String> waitingPlayer = db_con.getPlayerByID(Integer.parseInt(tmpMill.get("p1")), ip); // the waiting player
         System.out.println(waitingPlayer);
 
@@ -169,7 +172,7 @@ class ClientHandler {
                 Map<String, String> updatedMill = db_con.create_game_as_map(tmpMill.get("id"), tmpMill.get("p1"), joiningPlayer.get("id")); // insert joining into waiting game
                 db_con.change_mill(mill_game_to_join_by_id, updatedMill, ip); // update mill game in db
 
-                lgc = new Logic(mill_game_to_join_by_id);
+                lgc = new Logic(mill_game_to_join_by_id); // connection the same logic
                 init_lgc(mill_game_to_join_by_id, ip);
                 user.setLgc(lgc);
 
@@ -184,6 +187,9 @@ class ClientHandler {
     void start_game() throws SQLException {
         int countMillGames = db_con.get_count_of_mills(ip);
         System.out.println("my player id " + id);
+
+        db_con.change_player_by_raw_input(id, null,
+                null, null, -1,-1,"white", null, -1, ip);
 
         this.mill_game_to_join_by_id = countMillGames+1; // stteing mill id
 

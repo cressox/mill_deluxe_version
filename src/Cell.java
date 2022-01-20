@@ -6,8 +6,8 @@ public class Cell {
     private boolean is_empty = true;
     private Stone stone;
     private int[] neighbors;
-    private Muehle mill;
     private String[] lines; // lines of the rects
+    private String color_of_player;
 
     private JLabel label = new JLabel();
 
@@ -15,9 +15,9 @@ public class Cell {
         this.id = id;
     }
 
-    public Cell(int id, Muehle mill) {
+    public Cell(int id, String color_of_player) {
         this.id = id;
-        this.mill = mill;
+        this.color_of_player = color_of_player;
     }
 
     // METHODS //
@@ -76,20 +76,16 @@ public class Cell {
         this.neighbors = neighbors;
     }
 
-    public Muehle getMill() {
-        return mill;
-    }
-
-    public void setMill(Muehle mill) {
-        this.mill = mill;
-    }
-
     public String[] getLines() {
         return lines;
     }
 
     public void setLines(String[] lines) {
         this.lines = lines;
+    }
+
+    public String getColor_of_player() {
+        return color_of_player;
     }
 
     @Override
