@@ -112,8 +112,18 @@ public class Logic {
 
     public String current_game_state_as_string(){
         String result_string = "";
-
-        return "";
+        for (Cell cell:cells){
+            if (cell.getStone() == null){
+                result_string += "n";
+            }
+            else if (cell.getStone().getColor() == "white"){
+                result_string += "w";
+            }
+            else {
+                result_string += "b";
+            }
+        }
+        return result_string;
     }
 
     Player choose_player(Player p1, Player p2){

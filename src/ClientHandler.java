@@ -67,7 +67,7 @@ class ClientHandler {
                 if (data != null) {
                     System.out.println(id);
                     if (id!=-1) {
-                        if(lgc.interpret_client_request(data)) System.out.println("valid turn");
+                        if(lgc.interpret_client_request(data)) System.out.println("valid turn current game state: " + lgc.current_game_state_as_string());
 
                     }
                     //send_data("logic id: " + lgc.getId() + " Player One: " + lgc.getP1().toString() + " " + lgc.getTest());
