@@ -6,11 +6,6 @@ logic.interpret data
 
 mill game close after connection lost
 
-lobby room
-    online user
-    play btn
-    disconnect btn
-
 representation of mill game via string
 "------------------------"
 

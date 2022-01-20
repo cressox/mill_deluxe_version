@@ -17,6 +17,7 @@ class ClientHandler {
     private BufferedReader in;
     private boolean should_receive = true;
     private final InetAddress ip;
+    ClientHandler user_online[];
 
     // GAME LOGIC //
     private Logic lgc;
@@ -64,15 +65,25 @@ class ClientHandler {
                 // interpretation //
 
                 if (data != null) {
-                    System.out.println(data);
-                    // interpret data in class logic //
-                    update(data);
-                    send_data("logic id: " + lgc.getId() + " Player One: " + lgc.getP1().toString() + " " + lgc.getTest());
+                    System.out.println(id);
+                    if (id!=-1) {
+                        if(lgc.interpret_client_request(data)) System.out.println("valid turn");
 
+                    }
+                    //send_data("logic id: " + lgc.getId() + " Player One: " + lgc.getP1().toString() + " " + lgc.getTest());
+                    // interpret data in class logic //
+                    else{
+                        try { // getting the id from the user who logged in
+                            this.id = Integer.parseInt(data);
+                        }
+                        catch (NumberFormatException e){
+                            System.out.println(data + " is not numeric");
+                        }
+                    }
                 } else { // client dead
                     should_receive = false;
                 }
-            } catch (IOException | SQLException e) { // could be client dead
+            } catch (IOException e) { // could be client dead
                 should_receive = false;
                 e.printStackTrace();
             }
@@ -85,7 +96,9 @@ class ClientHandler {
     }
 
     void disconnect() throws SQLException {
-        if (mill_id!=-1) {
+        db_con.deactivate_player(id, ip);
+
+        if (mill_id!=-1) { // if ingame //
             db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
             Map<String, String> mill = db_con.getMillByID(mill_id, ip);
             System.out.println(mill_id);
@@ -112,13 +125,12 @@ class ClientHandler {
         // database acsess //
 
         // current game data //
-        Map<String, String> mill = db_con.getMillByID(id, ip);
+        Map<String, String> mill = db_con.getMillByID(mill_id, ip);
 
         // if mill doesnt exist anymore (cause other client dyed)
         // than check that and disconnect
-        if (mill==null){
+        if (mill==null || mill.isEmpty()){
             disconnect();
-
         } else {
             int id_p1 = Integer.parseInt(mill.get("p1"));
             int id_p2 = Integer.parseInt(mill.get("p2"));
@@ -146,5 +158,9 @@ class ClientHandler {
 
     public void setMill_id(int mill_id) {
         this.mill_id = mill_id;
+    }
+
+    public void setUser_online(ClientHandler[] user_online) {
+        this.user_online = user_online;
     }
 }

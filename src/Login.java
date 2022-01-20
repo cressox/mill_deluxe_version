@@ -33,12 +33,17 @@ public class Login {
 
     static JLabel info = new JLabel();
 
+    static int user_id;
+
+    static Lobby lobby;
+
     public Login() throws UnknownHostException {
     }
 
+
+
     public static void main(String[] args) throws SQLException {
-        draw();
-        db_con.wipe_all(ip);
+        //db_con.wipe_all(ip);
     }
 
     public static void init(){
@@ -63,10 +68,11 @@ public class Login {
         register.addActionListener(e -> register_fkt());
     }
 
-    public static void draw(){
+    public void draw(){
         init();
         ROOT.add(login_or_register_screen);
         ROOT.setVisible(true);
+        ROOT.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     public static void add_btn(JButton btn_to_add, JLabel label, String text, int x, int y, int width, int height){
@@ -105,7 +111,7 @@ public class Login {
         label_to_add.revalidate();
     }
 
-    public static void back(){
+    public void back(){
         ROOT.dispatchEvent(new WindowEvent(ROOT, WindowEvent.WINDOW_CLOSING));
         draw();
     }
@@ -176,6 +182,8 @@ public class Login {
                 if (user.get("online").equals("false")) {
                     db_con.activate_player(Integer.parseInt(user.get("id")), ip);
                     password_label.setText("logged in");
+                    lobby = new Lobby(Integer.parseInt(user.get("id")));
+                    lobby.draw();
                 }else {
                     password_label.setText("already logged in from ip: " + user.get("ip"));
                 }
@@ -186,16 +194,19 @@ public class Login {
     public static void db_register(String username, String password) throws SQLException {
         Map<String, String> user =  db_con.getPlayerByUsername(username, ip);
         if (user==null || user.isEmpty()){
-            int num_of_players = db_con.get_count_of_players(ip);
+            int num_of_players = db_con.get_count_of_registered_players(ip);
             System.out.println(password_label.getText() + " " + user_label.getText());
-            //db_con.insert_player(num_of_players + 1 , "", 0, 9, ip, password, username, false);
+            db_con.insert_player(num_of_players + 1 , "", 0, 9, ip, password, username, false);
             password_label.setText("registered");
         }else{
             password_label.setText("already registered pls log in");
         }
+    }
+    public int getUser_id() {
+        return user_id;
+    }
 
-
-
-
+    public static Lobby getLobby() {
+        return lobby;
     }
 }

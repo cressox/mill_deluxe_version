@@ -2,26 +2,42 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.UnknownHostException;
 
 // Client class
 class Client {
     // CLIENT VARIABLES //
+    private static Login login;
+
+    static {
+        try {
+            login = new Login();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static PrintWriter out;
     private static BufferedReader in;
     private static boolean should_receive = true;
-    private static Socket socket;
+    private static boolean logged_in = true;
+    private static mySocket socket;
     private static Mill_Interface mill_interface = new Mill_Interface();
     private static Player player;
 
+    Client() throws UnknownHostException {
+    }
+
     // driver code
     public static void main(String[] args) throws IOException {
-        mill_interface.draw();
+        //mill_interface.draw();
+        login.draw();
+        //new Thread(Client::check_if_logged_in).start(); // encapsulated vom main thread check if logged in
+    }
 
-        // establish a connection by providing host and port
-        // number
+    public static void connect_to_server(int player_id, int mill_id){
         try {
-            socket = new Socket("localhost", 1234);
+            socket = new mySocket("localhost", 1234, player_id, mill_id);
             // writing to server
             out = new PrintWriter(
                     socket.getOutputStream(), true);
@@ -31,6 +47,7 @@ class Client {
                     socket.getInputStream()));
 
             new Thread(Client::receive_data).start(); // abgekapselt vom main thread
+
         } catch (IOException e) {
             e.printStackTrace();
         }

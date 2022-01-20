@@ -12,9 +12,6 @@ public class Player {
     // for logic //
     private Stone[] stones = new Stone[9];
 
-    // SERVER //
-    private Client client = new Client();
-
     // GUI //
     ImageIcon icon;
     ImageIcon iconActive;
@@ -129,9 +126,5 @@ public class Player {
 
     public void setColor(String color) {
         this.color = color;
-    }
-
-    public Client getClient() {
-        return client;
     }
 }

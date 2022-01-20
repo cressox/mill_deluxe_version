@@ -12,7 +12,7 @@ public class Logic {
     private Player p1; // X = white;
     private Player p2; // O = black;
 
-    private int stage = 0;
+    private int stage = 1;
     // 0 = initial stage
     // 1 = first stage
     // 2 = second stage
@@ -31,17 +31,89 @@ public class Logic {
     public void init(int id_p1, int id_p2, String color_p1, String color_p2){
         p1 = new Player(id_p1, color_p1, "", "");
         p2 = new Player(id_p2, color_p2, "", "");
+        init_cells();
     }
 
-    public void interpret_client_request(String data) {
+    void init_cells(){
+        // initialise cells as objects in the field cells
+        for (int i = 0; i < 24; i++) {
+            cells[i] = new Cell(i);
+        }
+
+        // neighbors of 24 label //
+        cells[0].setNeighbors(new int[]{1, 9});
+        cells[1].setNeighbors(new int[]{0, 2, 4});
+        cells[2].setNeighbors(new int[]{1, 14});
+        cells[3].setNeighbors(new int[]{4, 10});
+        cells[4].setNeighbors(new int[]{1, 3, 5, 7});
+        cells[5].setNeighbors(new int[]{4, 13});
+        cells[6].setNeighbors(new int[]{7, 11});
+        cells[7].setNeighbors(new int[]{4, 6, 8});
+        cells[8].setNeighbors(new int[]{7, 12});
+        cells[9].setNeighbors(new int[]{0, 10, 21});
+        cells[10].setNeighbors(new int[]{3, 9, 11, 18});
+        cells[11].setNeighbors(new int[]{6, 10, 15});
+        cells[12].setNeighbors(new int[]{8, 13, 17});
+        cells[13].setNeighbors(new int[]{5, 12, 14, 20});
+        cells[14].setNeighbors(new int[]{2, 13, 23});
+        cells[15].setNeighbors(new int[]{11, 16});
+        cells[16].setNeighbors(new int[]{15, 17, 19});
+        cells[17].setNeighbors(new int[]{12, 16});
+        cells[18].setNeighbors(new int[]{10, 19});
+        cells[19].setNeighbors(new int[]{16, 18, 20, 22});
+        cells[20].setNeighbors(new int[]{13, 19});
+        cells[21].setNeighbors(new int[]{9, 22});
+        cells[22].setNeighbors(new int[]{19, 21, 23});
+        cells[23].setNeighbors(new int[]{14, 22});
+
+        // lines of 24 label //
+        cells[0].setLines(new String[]{"a", "d"});
+        cells[1].setLines(new String[]{"a", "m"});
+        cells[2].setLines(new String[]{"a", "b"});
+        cells[3].setLines(new String[]{"e", "h"});
+        cells[4].setLines(new String[]{"e", "m"});
+        cells[5].setLines(new String[]{"e", "f"});
+        cells[6].setLines(new String[]{"i", "l"});
+        cells[7].setLines(new String[]{"i", "m"});
+        cells[8].setLines(new String[]{"i", "j"});
+        cells[9].setLines(new String[]{"d", "p"});
+        cells[10].setLines(new String[]{"h", "p"});
+        cells[11].setLines(new String[]{"l", "p"});
+        cells[12].setLines(new String[]{"j", "n"});
+        cells[13].setLines(new String[]{"f", "n"});
+        cells[14].setLines(new String[]{"b", "n"});
+        cells[15].setLines(new String[]{"k", "l"});
+        cells[16].setLines(new String[]{"k", "o"});
+        cells[17].setLines(new String[]{"j", "k"});
+        cells[18].setLines(new String[]{"g", "h"});
+        cells[19].setLines(new String[]{"g", "o"});
+        cells[20].setLines(new String[]{"f", "g"});
+        cells[21].setLines(new String[]{"c", "d"});
+        cells[22].setLines(new String[]{"c", "o"});
+        cells[23].setLines(new String[]{"c", "b"});
+    }
+
+    public boolean interpret_client_request(String data) {
+        int cell_id = Integer.parseInt(data);
         switch (stage) {
             case 1 -> {
-                System.out.println();
+                System.out.println(data);
+                System.out.println(Arrays.toString(cells));
+                first_stage(cells[cell_id]);
             }
             case 2 -> {
-                System.out.println();
+                System.out.println(data);
+                System.out.println(Arrays.toString(cells));
+                second_stage(cells[cell_id]);
             }
         }
+        return true;
+    }
+
+    public String current_game_state_as_string(){
+        String result_string = "";
+
+        return "";
     }
 
     Player choose_player(Player p1, Player p2){

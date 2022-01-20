@@ -98,7 +98,6 @@ public class Cell {
                 "id=" + id +
                 ", is_empty=" + is_empty +
                 ", stone=" + stone +
-                ", neighbors=" + Arrays.toString(neighbors) +
                 ", lines=" + Arrays.toString(lines) +
                 '}';
     }
