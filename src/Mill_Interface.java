@@ -9,6 +9,8 @@ import java.util.Objects;
 
 public class Mill_Interface {
     // GAME VARIABLES //
+    boolean myTurn = false; // ability to set/take/move stones
+
     private static Cell[] cells = new Cell[24]; // cells in the game where stones can take place
     private static JFrame MAIN_FRAME = new JFrame();
     private static JLabel MAIN_LABEL = new JLabel();
@@ -205,5 +207,13 @@ public class Mill_Interface {
 
     public ImageIcon getIcon_white() {
         return icon_white;
+    }
+
+    public boolean isMyTurn() {
+        return myTurn;
+    }
+
+    public void setMyTurn(boolean myTurn) {
+        this.myTurn = myTurn;
     }
 }

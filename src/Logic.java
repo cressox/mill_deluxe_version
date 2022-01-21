@@ -21,16 +21,16 @@ public class Logic {
     private int num_of_clicked_cells = 0;
     private Cell tmpCell1;
     private Cell tmpCell2;
-    private boolean isMill = false;
-    private boolean gameOver = false;
+    public boolean isMill = false;
+    public boolean gameOver = false;
 
     public Logic(int id) {
         this.id = id;
     }
 
     public void init(int id_p1, int id_p2, String color_p1, String color_p2){
-        p2 = new Player(id_p1, color_p1, "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black.png", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black-red.png");
-        p1 = new Player(id_p2, color_p2, "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white.png", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white-red.png");
+        p1 = new Player(id_p1, "white", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white.png", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white-red.png");
+        p2 = new Player(id_p2, "black", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black.png", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black-red.png");
         init_cells();
     }
 
@@ -94,6 +94,7 @@ public class Logic {
     }
 
     public boolean interpret_client_request(String data) {
+        System.out.println("mill now cr: " + isMill);
         int cell_id;
         String cell_player_color;
         if (data.contains("white")) {
@@ -149,28 +150,33 @@ public class Logic {
             second_stage(c, cell_player_color);
         } else{
             if (isMill){
-                if (c.getStone() != null && c.getStone().getColor() != p1.getColor()){
-                    if (!is_mill(c) || only_mills_in_game(p2)) {
+                if (c.getStone() != null && (!cell_player_color.equals("white"))){
+                    if (!is_mill(c, cell_player_color) || only_mills_in_game(p2, cell_player_color)) {
                         p1.take_stone(c);
                         p2.setStones_in_game(p2.getStones_in_game() - 1);
-                        isMill = false;
-//                        switch_player();
+                        //isMill = false;
+                    }else{
+                        p2.take_stone(c);
+                        p1.setStones_in_game(p1.getStones_in_game() - 1);
+                        //isMill = false;
                     }
                 }
             }
-
             else if (cell_player_color.equals("white")){
-                if(p2.set_stone(c, cell_player_color)) {
+                if(p1.set_stone(c, cell_player_color)) {
                     System.out.println(cell_player_color + " p1");
-                    if (is_mill(c)) { // mühle
-                        isMill = true;
+                    if (is_mill(c, cell_player_color)) { // mühle
+                        this.isMill = true;
+                        System.out.println("now mill" + isMill);
                     }
                 }
             }else {
-                if(p1.set_stone(c, cell_player_color)) {
+                if(p2.set_stone(c, cell_player_color)) {
                     System.out.println(cell_player_color + " p2");
-                    if (is_mill(c)) { // mühle
-                        isMill = true;
+                    if (is_mill(c, cell_player_color)) { // mühle
+                        this.isMill = true;
+                        System.out.println("now mill " + isMill);
+
                     }
                 }
             }
@@ -184,13 +190,13 @@ public class Logic {
 
         if (isMill && (c.getStone() != null)) { // spieler hat mühle und pot weggenommene zelle ist nicht leer
             if (!c.getStone().getColor().equals(p1.getColor())) { // darf nicht eigener stein sein
-                if (!is_mill(c) || only_mills_in_game(p2)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
+                if (!is_mill(c, cell_player_color) || only_mills_in_game(p2, cell_player_color)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
                     p1.take_stone(c); // spieler nimmt stein des anderen spielers
 
                     p2.setStones_in_game(p2.getStones_in_game() - 1);
 //                    switch_player(); // next player
 
-                    isMill = false;
+                    //isMill = false;
                     if (is_blocked(p2)) {
                         winning(p1.getColor(), true);
                     }
@@ -233,7 +239,7 @@ public class Logic {
                                 }
                             }
 
-                            if (is_mill(tmpCell2)) { // spieler hat mühle
+                            if (is_mill(tmpCell2, cell_player_color)) { // spieler hat mühle
                                 isMill = true; // spieler nimmt stein des anderen spielers
 //                                System.out.println("mühle");
                             }
@@ -253,10 +259,10 @@ public class Logic {
         }
     }
 
-    private boolean only_mills_in_game(Player p){ // checkt ob nur mühlen existieren
+    private boolean only_mills_in_game(Player p, String cell_player_color){ // checkt ob nur mühlen existieren
         for (Stone s : p.getStones()){
             if (s.getCell() != null) {
-                if (!is_mill(s.getCell())) {
+                if (!is_mill(s.getCell(), cell_player_color)) {
                     return false;
                 }
             }
@@ -276,17 +282,17 @@ public class Logic {
         }
     }
 
-    boolean is_mill(Cell c){
-        String color = c.getStone().getColor();
-
+    boolean is_mill(Cell c, String cell_player_color){
+        System.out.println(cell_player_color);
+        System.out.println(Arrays.toString(c.getLines()));
         for (String line : c.getLines()){
             int num_of_same_stones_in_line = 0;
             for (Cell tmpCell : cells){
                 if (Arrays.asList(tmpCell.getLines()).contains(line) && !tmpCell.isIs_empty()){ // cell in cells has same line and cell cant be empty
                     if (tmpCell.getStone().getColor()==null) continue;
-                    if ((tmpCell.getStone().getColor().equals(color))){ // same stone color
+                    if ((tmpCell.getStone().getColor().equals(cell_player_color))){ // same stone color
                         num_of_same_stones_in_line++; // one stone more in line
-//                        System.out.println("cell "+tmpCell.getId()+" has same color on line "+line);
+                        System.out.println(tmpCell.getStone().getColor() + " id: " + tmpCell.getId());
                     }
                 }
             }

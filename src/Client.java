@@ -74,6 +74,10 @@ class Client {
                         mill_interface.draw("black");
                     }else if (data.contains("start")){
                         mill_interface.draw("white");
+                    }else if (data.contains("turnOn")){
+                        mill_interface.setMyTurn(true);
+                    }else if (data.contains("turnOff")){
+                        mill_interface.setMyTurn(false);
                     }
                     else {
                         interpret_incomming_data(data);

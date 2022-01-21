@@ -121,9 +121,9 @@ public class Lobby{
         String[] columnNames = { "user", "status" };
 
         for (int i = 0; i < count_online_users; i++){
-            Map<String,String> tmpMap = db_con.getPlayerByID(db_online_users[i], ip);
-            data[i][0] = tmpMap.get("username");
-            data[i][1] = tmpMap.get("status");
+            Map<String,String> tmpPlayer = db_con.getPlayerByID(db_online_users[i], ip);
+            data[i][0] = tmpPlayer.get("username");
+            data[i][1] = tmpPlayer.get("status");
         }
         System.out.println(Arrays.deepToString(data));
         table = new JTable(data, columnNames);

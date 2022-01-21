@@ -11,7 +11,7 @@ import java.util.Map;
 // ClientHandler class
 class ClientHandler {
     int mill_game_to_join_by_id = -1;
-    int id;
+    int id; // same id as in db for the player
     DB_Connector db_con;
     private final Socket clientSocket;
     private PrintWriter out;
@@ -94,10 +94,26 @@ class ClientHandler {
                             ready_to_play = false;
                             send_data("lobby");
                         }
-                        else if(lgc.interpret_client_request(data)) {
-                            System.out.println("valid turn current game state: " + lgc.current_game_state_as_string());
-                            send_data(lgc.current_game_state_as_string());
-                            other_ch.send_data(lgc.current_game_state_as_string());
+                        else {
+                            String tmpStateOfGame = lgc.current_game_state_as_string();
+                            Boolean isThereAMill = lgc.isMill();
+                            System.out.println("current state of isMill: " + lgc.isMill());
+                            if (lgc.interpret_client_request(data)) {
+                                System.out.println("valid turn current game state: " + lgc.current_game_state_as_string());
+                                send_data(lgc.current_game_state_as_string());
+                                other_ch.send_data(lgc.current_game_state_as_string());
+                                if (lgc.isMill()) {
+                                    if ((isThereAMill)&&(!tmpStateOfGame.equals(lgc.current_game_state_as_string()))){
+                                        lgc.setMill(false); // only if stone is taken
+                                        other_ch.send_data("turnOn");
+                                        send_data("turnOff");
+                                    }
+                                } else {
+                                    other_ch.send_data("turnOn");
+                                    send_data("turnOff");
+                                }
+                                System.out.println("current state of isMill: " + lgc.isMill());
+                            }
                         }
                     }
                     else if (data.contains("join")){
@@ -160,8 +176,6 @@ class ClientHandler {
         Map<String, String> joiningPlayer = db_con.getPlayerByID(id, ip); // the waiting player
         System.out.println(joiningPlayer);
 
-
-
         for (ClientHandler user : online_users) {
             if (user==null) continue;
             if (user.getId() == Integer.parseInt(waitingPlayer.get("id"))) { // searching the ch of the waiting player
@@ -181,6 +195,15 @@ class ClientHandler {
                 break;
             }
         }
+
+        if ((int)(Math.random()*2) == 0){ // player who start is randomly chosen
+            other_ch.send_data("turnOn");
+            send_data("turnOff");
+        } else {
+            other_ch.send_data("turnOff");
+            send_data("turnOn");
+        }
+
         send_data("join");
     }
 
@@ -191,9 +214,9 @@ class ClientHandler {
         db_con.change_player_by_raw_input(id, null,
                 null, null, -1,-1,"white", null, -1, ip);
 
-        this.mill_game_to_join_by_id = countMillGames+1; // stteing mill id
+        this.mill_game_to_join_by_id = countMillGames+1; // setting mill id
 
-        Map<String, String> startingPlayer = db_con.getPlayerByID(id, ip); // the waiting player
+        //Map<String, String> startingPlayer = db_con.getPlayerByID(id, ip); // the waiting player
         db_con.insert_mill(countMillGames+1, id, -1, ip);
 
         send_data("start");

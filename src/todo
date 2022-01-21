@@ -2,11 +2,12 @@ logic.interpret data
     gewinnen
     verlieren
     aufgeben
+        back to lobby
     neustarten
 
 mill game close after connection lost
-
-representation of mill game via string
-"------------------------"
+frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 
 relative paths to assets
+
+update lobby if in lobby and other client start/join game

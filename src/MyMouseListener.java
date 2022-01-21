@@ -51,6 +51,7 @@ public class MyMouseListener implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        if (!mill_interface.isMyTurn()) return;
         System.out.println(cell);
         if (cell != null) {
             System.out.println(cell.getId());

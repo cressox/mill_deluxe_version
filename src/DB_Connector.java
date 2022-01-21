@@ -360,8 +360,8 @@ public class DB_Connector {
 
     protected void delete_mill(int id, boolean only_game, InetAddress ip) throws SQLException {
         Map<String, String> tmp_vals = get_mill(id, ip);
-        deactivate_player(Integer.parseInt(tmp_vals.get("p1")), ip);
-        deactivate_player(Integer.parseInt(tmp_vals.get("p2")), ip);
+//        deactivate_player(Integer.parseInt(tmp_vals.get("p1")), ip);
+//        deactivate_player(Integer.parseInt(tmp_vals.get("p2")), ip);
         String sql = "delete from " + "game" + " where id=" + id;
 
         open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
@@ -586,7 +586,6 @@ public class DB_Connector {
         pst.close();
         this.close_con(ip);
     }
-
 
     // GETTER //
     public Map<String, String> getPlayerByID(int id, InetAddress ip) throws SQLException {
