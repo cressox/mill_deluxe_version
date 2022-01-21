@@ -1,6 +1,5 @@
 logic.interpret data
-    gewinnen
-    verlieren
+    verlieren durch blockieren
     aufgeben
         back to lobby
     neustarten
@@ -11,3 +10,5 @@ frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 relative paths to assets
 
 update lobby if in lobby and other client start/join game
+
+set titel to games

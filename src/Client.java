@@ -78,6 +78,9 @@ class Client {
                         mill_interface.setMyTurn(true);
                     }else if (data.contains("turnOff")){
                         mill_interface.setMyTurn(false);
+                    }else if (data.contains("win")){
+                        String winner = data.replace("win", "");
+                        mill_interface.winning(winner);
                     }
                     else {
                         interpret_incomming_data(data);

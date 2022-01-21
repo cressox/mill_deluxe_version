@@ -109,10 +109,17 @@ class ClientHandler {
                                         send_data("turnOff");
                                     }
                                 } else {
-                                    other_ch.send_data("turnOn");
-                                    send_data("turnOff");
+                                    if ((!tmpStateOfGame.equals(lgc.current_game_state_as_string()))){
+                                        other_ch.send_data("turnOn");
+                                        send_data("turnOff");
+                                    }
                                 }
                                 System.out.println("current state of isMill: " + lgc.isMill());
+                            }
+                            if (lgc.isGameOver()){ // game over
+                                ready_to_play = false;
+                                send_data("win" + lgc.getIsWinner());
+                                other_ch.send_data("win" + lgc.getIsWinner());
                             }
                         }
                     }

@@ -1,5 +1,3 @@
-import javax.swing.*;
-import java.net.URL;
 import java.util.Arrays;
 
 public class Logic {
@@ -7,6 +5,7 @@ public class Logic {
     String test = "";
 
     boolean my_turn = false; // cant interact
+    String isWinner; // cant interact
 
     private static Cell[] cells = new Cell[24]; // cells in the game where stones can take place
     private Player p1; // X = white;
@@ -109,11 +108,13 @@ public class Logic {
                 System.out.println(data);
                 System.out.println(Arrays.toString(cells));
                 first_stage(cells[cell_id], cell_player_color);
+                is_game_running();
             }
             case 2 -> {
                 System.out.println(data);
                 System.out.println(Arrays.toString(cells));
                 second_stage(cells[cell_id], cell_player_color);
+                is_game_running();
             }
         }
         return true;
@@ -135,6 +136,15 @@ public class Logic {
         return result_string;
     }
 
+    public int count_char(char countChar){
+        String tmp = current_game_state_as_string();
+        int count=0;
+        for (char ch : tmp.toCharArray()){
+            if (ch==countChar) count++;
+        }
+        return count;
+    }
+
     Player choose_player(Player p1, Player p2){
         if ((int)(Math.random()*2) == 0){
             return p1;
@@ -150,7 +160,7 @@ public class Logic {
             second_stage(c, cell_player_color);
         } else{
             if (isMill){
-                if (c.getStone() != null && (!cell_player_color.equals("white"))){
+                if (c.getStone() != null && (cell_player_color.equals("white"))){
                     if (!is_mill(c, cell_player_color) || only_mills_in_game(p2, cell_player_color)) {
                         p1.take_stone(c);
                         p2.setStones_in_game(p2.getStones_in_game() - 1);
@@ -158,6 +168,16 @@ public class Logic {
                     }else{
                         p2.take_stone(c);
                         p1.setStones_in_game(p1.getStones_in_game() - 1);
+                        //isMill = false;
+                    }
+                } else {
+                    if (!is_mill(c, cell_player_color) || only_mills_in_game(p1, cell_player_color)) {
+                        p2.take_stone(c);
+                        p1.setStones_in_game(p1.getStones_in_game() - 1);
+                        //isMill = false;
+                    }else{
+                        p1.take_stone(c);
+                        p2.setStones_in_game(p2.getStones_in_game() - 1);
                         //isMill = false;
                     }
                 }
@@ -181,61 +201,75 @@ public class Logic {
                 }
             }
         }
+        System.out.println("p1: sig: " + p1.getStones_in_game());
+        System.out.println("p2: sig: " + p2.getStones_in_game());
     }
 
     void second_stage(Cell c, String cell_player_color){
-        if (p1.getStones_in_game() <= 3 || p2.getStones_in_game() <= 3){ // stage two ends and the third stage starts cause one of the players have only 3 stones left
-            setStage(3);
-        }
-
+        System.out.println("p1: sig: " + p1.getStones_in_game());
+        System.out.println("p2: sig: " + p2.getStones_in_game());
         if (isMill && (c.getStone() != null)) { // spieler hat mühle und pot weggenommene zelle ist nicht leer
-            if (!c.getStone().getColor().equals(p1.getColor())) { // darf nicht eigener stein sein
+            if (!c.getStone().getColor().equals("white")) { // darf nicht eigener stein sein
                 if (!is_mill(c, cell_player_color) || only_mills_in_game(p2, cell_player_color)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
                     p1.take_stone(c); // spieler nimmt stein des anderen spielers
-
                     p2.setStones_in_game(p2.getStones_in_game() - 1);
-//                    switch_player(); // next player
-
-                    //isMill = false;
                     if (is_blocked(p2)) {
                         winning(p1.getColor(), true);
                     }
                 }
+            } else if (!is_mill(c, cell_player_color) || only_mills_in_game(p1, cell_player_color)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
+                p2.take_stone(c); // spieler nimmt stein des anderen spielers
+                p1.setStones_in_game(p1.getStones_in_game() - 1);
+                if (is_blocked(p1)) {
+                    winning(p2.getColor(), true);
+                }
             }
         }
 
-        else if (isValid(c)) {
+        else if (isValid(c, cell_player_color)) {
             switch (num_of_clicked_cells) {
                 case 0 : {
-                    if (is_blocked(p1)) {
-                        winning(p2.getColor(), true);
-                    }
-                    else if ((c.getStone() != null)) { // erste zelle darf nicht leer sein
-                        num_of_clicked_cells += 1;
-                        tmpCell1 = c;
-//                        System.out.println("erste zelle ist " + c.getId());
+                    if (cell_player_color.equals("white")) {
+                        if (is_blocked(p1)) {
+                            winning(p2.getColor(), true);
+                        } else if ((c.getStone() != null)) { // erste zelle darf nicht leer sein
+                            num_of_clicked_cells += 1;
+                            tmpCell1 = c;
+                        }
+                    }else{
+                        if (is_blocked(p2)) {
+                            winning(p1.getColor(), true);
+                        }
+                        else if ((c.getStone() != null)) { // erste zelle darf nicht leer sein
+                            num_of_clicked_cells += 1;
+                            tmpCell1 = c;
+                        }
                     }
                 }
 
                 case 1 : {
                     if ((c != tmpCell1) && (c.isIs_empty())) { // nicht 2 mal selbe zelle und 2. zelle muss leer sein
-                        System.out.println(p1.getStones_in_game() + "" + p2.getStones_in_game());
                         if (is_in_neigbors(tmpCell1, c) || p1.getStones_in_game() <= 3 || p2.getStones_in_game() <= 3) { // zelle darf nur 1 platz weiter
                             tmpCell2 = c;
-//                            System.out.println("zweite zelle ist " + c.getId());
                             num_of_clicked_cells = 0; // zähler für start und end auf null
 
-                            if (is_in_neigbors(tmpCell1, c)){
-                                p1.move_stone(tmpCell1, tmpCell2); // bewegen
-                            }
-                            else if (p1.getStones_in_game() <= 3) {
-                                if (tmpCell1.getStone().getColor() == p1.getColor()){
+                            if (cell_player_color.equals("white")){
+                                if (is_in_neigbors(tmpCell1, c)){
                                     p1.move_stone(tmpCell1, tmpCell2); // bewegen
                                 }
-                            }
-                            else if (p2.getStones_in_game() <= 3){
-                                if (tmpCell1.getStone().getColor() == p2.getColor()){
+                                else if (count_char('w')<=3) {
+                                    if (tmpCell1.getStone().getColor() == p1.getColor()){
+                                        p1.move_stone(tmpCell1, tmpCell2); // bewegen
+                                    }
+                                }
+                            }else{
+                                if (is_in_neigbors(tmpCell1, c)){
                                     p2.move_stone(tmpCell1, tmpCell2); // bewegen
+                                }
+                                else if (count_char('b')<=3) {
+                                    if (tmpCell1.getStone().getColor() == p2.getColor()){
+                                        p2.move_stone(tmpCell1, tmpCell2); // bewegen
+                                    }
                                 }
                             }
 
@@ -243,16 +277,18 @@ public class Logic {
                                 isMill = true; // spieler nimmt stein des anderen spielers
 //                                System.out.println("mühle");
                             }
-//                            else { // nur wenn keine  mühle darf der nächste spieler dran
-//                                switch_player();
-//////                                System.out.println("keine mühle");
-//                            }
                         }
                         else { // invalid try
                             num_of_clicked_cells = 0;
                         }
-                    } else if (is_blocked(p1)) {
-                        winning(p2.getColor(), true);
+                    } else if (cell_player_color.equals("white")){
+                        if (is_blocked(p1)) {
+                            winning(p2.getColor(), true);
+                        }
+                    } else {
+                        if (is_blocked(p2)) {
+                            winning(p1.getColor(), true);
+                        }
                     }
                 }
             }
@@ -270,15 +306,22 @@ public class Logic {
         return true;
     }
 
-    private boolean isValid(Cell c){
+    private boolean isValid(Cell c, String cell_player_color){
         if (c.getStone() == null){
             return true;
         }
-        if (p1.getColor() == c.getStone().getColor()) {
-            return true;
-        } else {
-//            System.out.println("player "+current_player.getColor()+ " pls select ur stone");
-            return false;
+        if (cell_player_color.equals("white")){
+            if (p1.getColor() == c.getStone().getColor()) {
+                return true;
+            } else {
+                return false;
+            }
+        }else{
+            if (p2.getColor() == c.getStone().getColor()) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -309,10 +352,12 @@ public class Logic {
         if ((p1.getStones_in_game() <= 2) && (this.stage != 1)){ // p2 is winning
             winning(p2.getColor(), true);
             gameOver = true;
+            isWinner = "black";
             return false;
         } else if ((p2.getStones_in_game() <= 2) && (this.stage != 1)){ // p1 is winning
             winning(p1.getColor(), true);
             gameOver = true;
+            isWinner = "white";
             return false;
         } else { // game is still running
             return true;
@@ -337,21 +382,15 @@ public class Logic {
     }
 
     void winning(String color, boolean send){
-        for (Cell c : cells){
-            c.getLabel().setIcon(null);
-        }
-
         if (color.equals("white")){
-            URL imgSmartURL = this.getClass().getResource("Assets/brett_gewinn_white.png");
-            ImageIcon bg = new ImageIcon(imgSmartURL);
             if (send) {
-                Client.send_data("method:win, player:" + "white");
+                gameOver = true;
+                isWinner = "white";
             }
         } else {
-            URL imgSmartURL = this.getClass().getResource("Assets/brett_gewinn_black.png");
-            ImageIcon bg = new ImageIcon(imgSmartURL);
             if (send) {
-                Client.send_data("method:win, player:" + "black");
+                gameOver = true;
+                isWinner = "black";
             }
         }
     }
@@ -459,5 +498,13 @@ public class Logic {
 
     public String getTest() {
         return test;
+    }
+
+    public String getIsWinner() {
+        return isWinner;
+    }
+
+    public void setIsWinner(String isWinner) {
+        this.isWinner = isWinner;
     }
 }

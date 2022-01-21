@@ -159,6 +159,32 @@ public class Mill_Interface {
         cells[23].setLines(new String[]{"c", "b"});
     }
 
+    void winning(String winner) throws IOException {
+        for (Cell c : cells){
+            c.getLabel().setIcon(null);
+            c.getLabel().setVisible(false);
+            c.getLabel().setOpaque(false);
+        }
+        if (winner.equals("white")){
+            BufferedImage imgSmartURL = ImageIO.read(new File("D:\\Programming\\mill_deluxe_version\\src\\Assets\\brett_gewinn_white.png"));
+            ImageIcon bg = new ImageIcon(imgSmartURL);
+            MAIN_LABEL.setIcon(bg);
+        }else{
+            BufferedImage imgSmartURL = ImageIO.read(new File("D:\\Programming\\mill_deluxe_version\\src\\Assets\\brett_gewinn_black.png"));
+            ImageIcon bg = new ImageIcon(imgSmartURL);
+            MAIN_LABEL.setIcon(bg);
+
+        }
+
+        neustart.setVisible(true);
+        neustart.setOpaque(true);
+
+        MAIN_LABEL.repaint();
+        MAIN_LABEL.revalidate();
+        MAIN_FRAME.repaint();
+        MAIN_FRAME.revalidate();
+    }
+
     void draw(String color) throws IOException {
         init(color);
         // initialise interface
