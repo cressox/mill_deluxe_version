@@ -365,20 +365,27 @@ public class Logic {
     }
 
     private boolean is_blocked(Player p){
+        String game_state = current_game_state_as_string();
+        char[] gs = game_state.toCharArray();
+        int i = 0;
+        for (char c : gs){
+            if (c=='n') continue;
+            if (c=='w' && p.getColor().equals("white")){
+                int [] tmp = cells[i].getNeighbors();
+                for (int t : tmp){
+                    if (cells[t].isIs_empty()) return true;
+                }
+            }
+            if (c=='b' && p.getColor().equals("black")){
+                int [] tmp = cells[i].getNeighbors();
+                for (int t : tmp){
+                    if (cells[t].isIs_empty()) return true;
+                }
+            }
+            i++;
+        }
+
         return false;
-//        for (Stone s : p.getStones()){
-//            if (s.isIs_visible()){ // sichtbarere stein wird geprüft
-//                if (s.getCell() == null) continue;
-//                for (int i : s.getCell().getNeighbors()){
-//                    if (cells[i].isIs_empty()){
-////                        System.out.println("lel");
-//                        return false;
-//                    }
-//                }
-//            }
-//        }
-////        System.out.println("lol");
-//        return true;
     }
 
     void winning(String color, boolean send){
