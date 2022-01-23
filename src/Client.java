@@ -72,6 +72,9 @@ class Client {
                         // winning by quit of the other player
                         login.getLobby().draw(); // paint lobby
 
+                    }else if (data.contains("update")){
+                        login.getLobby().update_all();
+
                     }else if (data.contains("join")){
                         mill_interface.draw("black");
 

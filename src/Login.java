@@ -185,6 +185,7 @@ public class Login {
 
                     Client.connect_to_server();
                     Client.send_data("id=" + Integer.parseInt(user.get("id"))); // send user id to ch
+                    Client.send_data("update"); // send user id to ch
 
                     lobby = new Lobby(Integer.parseInt(user.get("id")));
                     System.out.println(Integer.parseInt(user.get("id")));

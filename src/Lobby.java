@@ -183,10 +183,16 @@ public class Lobby{
         for (Component component : components) {
             games_panel.remove(component);
         }
-        games_panel.revalidate();
-        games_panel.repaint();
+
         int[] players_waiting = db_con.get_player_in_game_ids(ip);
         set_waiting_games_in_label(games_panel, players_waiting);
+
+        components = RIGHT_panel.getComponents();
+        for (Component component : components) {
+            RIGHT_panel.remove(component);
+        }
+
+        create_table_of_online_user();
 
         ROOT.revalidate();
         ROOT.repaint();

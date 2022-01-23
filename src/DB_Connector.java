@@ -246,7 +246,7 @@ public class DB_Connector {
                 tmpPlayer.get("stones_out"),
                 tmpPlayer.get("stones_in"),
                 tmpPlayer.get("color"),
-                "in game",
+                "in game " + mill_id_to_join,
                 String.valueOf(mill_id_to_join)
         ); // new player
         change_player(Integer.parseInt(tmpPlayer.get("id")), newPlayer, ip); // update new player in db

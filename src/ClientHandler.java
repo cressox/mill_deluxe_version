@@ -87,6 +87,8 @@ class ClientHandler {
                         catch (NumberFormatException e){
                             System.out.println(data + " is not numeric");
                         }
+                    }else if (data.contains("update")){ // get mill id from client
+                        update();
                     } else if (data.contains("giveUp")) {
                         init_lgc(mill_game_to_join_by_id, ip);
                         String player_color = data.replace("giveUp", "");
@@ -134,10 +136,12 @@ class ClientHandler {
                     else if (data.contains("join")){
                         join_game();
                         ready_to_play = true;
+                        update();
                     }
                     else if (data.contains("start")){
                         start_game();
                         ready_to_play = true;
+                        update();
                     }
                 } else { // client dead
                     should_receive = false;
@@ -159,6 +163,7 @@ class ClientHandler {
     }
 
     void disconnect() throws SQLException {
+        online_users[id-1] = null; // setting player globally offline
         db_con.deactivate_player(id, ip);
         Map<String, String> mill = db_con.getMillByID(mill_game_to_join_by_id, ip);
 
@@ -173,6 +178,7 @@ class ClientHandler {
             db_con.delete_mill(mill_game_to_join_by_id, true, ip);
         }
         System.out.println("closed CH_CON to client " + ip.getHostAddress());
+        update();
     }
 
     void join_game() throws SQLException {
@@ -260,31 +266,9 @@ class ClientHandler {
     }
 
     // update via db //
-    void update(String client_request) throws SQLException {
-        // get values from logic //
-        // than push to db //
-
-
-        db_con.open_con("jdbc:mysql://localhost:3306/muehle", "root", "root", ip);
-        // database acsess //
-
-        // current game data //
-        Map<String, String> mill = db_con.getMillByID(mill_game_to_join_by_id, ip);
-
-        // if mill doesnt exist anymore (cause other client dyed)
-        // than check that and disconnect
-        if (mill==null || mill.isEmpty()){
-            disconnect();
-        } else {
-            int id_p1 = Integer.parseInt(mill.get("p1"));
-            int id_p2 = Integer.parseInt(mill.get("p2"));
-//        System.out.println(mill);
-
-            Map<String, String> p1 = db_con.getPlayerByID(id_p1, ip);
-//        System.out.println(p1);
-
-            Map<String, String> p2 = db_con.getPlayerByID(id_p2, ip);
-//        System.out.println(p2);
+    void update() {
+        for (ClientHandler ch : online_users){
+            if (ch!=null && ch!=this) ch.send_data("update");
         }
     }
 
