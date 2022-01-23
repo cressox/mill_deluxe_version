@@ -32,7 +32,7 @@ class Client {
 
     // driver code
     public static void main(String[] args) throws IOException {
-        //mill_interface.draw();
+//        mill_interface.draw("white");
         login.draw();
         //new Thread(Client::check_if_logged_in).start(); // encapsulated vom main thread check if logged in
     }
@@ -64,26 +64,37 @@ class Client {
         while (should_receive) {
             try {
                 String data = in.readLine();
+                System.out.println(data);
                 // interpretation //
 
                 if (data != null) {
                     if (data.contains("lobby")){ // game dies, back to lobby
                         // winning by quit of the other player
                         login.getLobby().draw(); // paint lobby
+
                     }else if (data.contains("join")){
                         mill_interface.draw("black");
-                    }else if (data.contains("start")){
+
+                    }else if (data.contains("start") && !data.contains("re")){
                         mill_interface.draw("white");
+
                     }else if (data.contains("turnOn")){
                         mill_interface.setMyTurn(true);
+
                     }else if (data.contains("turnOff")){
                         mill_interface.setMyTurn(false);
+
                     }else if (data.contains("win")){
-                        String winner = data.replace("win", "");
-                        mill_interface.winning(winner);
-                    }
-                    else {
+                        String color_of_winning_player = data.replace("win", "");
+                        mill_interface.winning(color_of_winning_player);
+
+                    }else if (data.contains("restart")){
+                        String color_of_requesting_player = data.replace("win", "");
+                        mill_interface.restart(color_of_requesting_player);
+
+                    }else {
                         interpret_incomming_data(data);
+
                     }
                 } else { // server dead
                     should_receive = false;

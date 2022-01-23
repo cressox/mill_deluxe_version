@@ -214,4 +214,8 @@ public class Login {
     public static Lobby getLobby() {
         return lobby;
     }
+
+    public static JFrame getROOT() {
+        return ROOT;
+    }
 }

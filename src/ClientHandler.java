@@ -87,10 +87,18 @@ class ClientHandler {
                         catch (NumberFormatException e){
                             System.out.println(data + " is not numeric");
                         }
-                    }
-                    else if (ready_to_play){
+                    } else if (data.contains("giveUp")) {
+                        init_lgc(mill_game_to_join_by_id, ip);
+                        String player_color = data.replace("giveUp", "");
+                        send_data("win" + (player_color.equals("white")?"black":"white"));
+                        other_ch.send_data("win" + (player_color.equals("white")?"black":"white"));
+                    } else if (data.contains("restart")) {
+                        String player_color = data.replace("restart", "");
+                        send_data("restart" + player_color);
+                        other_ch.send_data("restart" + player_color);
+                    } else if (ready_to_play){
                         Map<String,String> mill = db_con.getMillByID(mill_game_to_join_by_id, ip);
-                        if (mill.isEmpty() || mill == null){ // game dies
+                        if (mill.isEmpty()){ // game dies
                             ready_to_play = false;
                             send_data("lobby");
                         }

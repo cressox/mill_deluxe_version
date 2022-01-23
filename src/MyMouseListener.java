@@ -12,9 +12,6 @@ public class MyMouseListener implements MouseListener {
         this.label = label;
         this.cell = cell;
     }
-    public MyMouseListener(JLabel label){
-        this.label = label;
-    }
 
     @Override
     public void mouseReleased(MouseEvent e) {

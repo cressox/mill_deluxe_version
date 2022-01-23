@@ -229,4 +229,8 @@ public class Lobby{
     public static int getUser_id() {
         return user_id;
     }
+
+    public static JFrame getROOT() {
+        return ROOT;
+    }
 }

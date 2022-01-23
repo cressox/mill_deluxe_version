@@ -3,7 +3,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -14,17 +13,16 @@ public class Mill_Interface {
     private static Cell[] cells = new Cell[24]; // cells in the game where stones can take place
     private static JFrame MAIN_FRAME = new JFrame();
     private static JLabel MAIN_LABEL = new JLabel();
-    private static JLabel abbruch = new JLabel();
-    private static JLabel neustart = new JLabel();
+    private static JButton abbruch = new JButton();
+    private static JButton neustart = new JButton();
 
-    private String imgURL_black = "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black.png";
-    ImageIcon icon_black = new ImageIcon(Objects.requireNonNull(imgURL_black));
-    private String imgURL_black_active = "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black-red.png";
-    ImageIcon icon_black_active = new ImageIcon(Objects.requireNonNull(imgURL_black_active));
-    private String imgURL_white = "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white.png";
-    ImageIcon icon_white = new ImageIcon(Objects.requireNonNull(imgURL_white));
-    private String imgURL_white_active = "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white-red.png";
-    ImageIcon icon_white_active = new ImageIcon(Objects.requireNonNull(imgURL_white_active));
+    ImageIcon icon_black = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\black.png")));
+
+    ImageIcon icon_black_active = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\black-red.png")));
+
+    ImageIcon icon_white = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\white.png")));
+
+    ImageIcon icon_white_active = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\white-red.png")));
 
     // CONSTANT VALUES //
     int WIDTH = 720;
@@ -34,13 +32,14 @@ public class Mill_Interface {
     int x = -15; // specific offset for cells
     int y = -20; // specific offset for cells
 
+    String color; // color of player
 
-    void init(String color) throws IOException {
+    void init() throws IOException {
         MAIN_FRAME.getContentPane();
         MAIN_FRAME.setSize(WIDTH + 50, HEIGHT);
+        MAIN_FRAME.setTitle("Player " + color);
         MAIN_FRAME.setLocationRelativeTo(null);
-
-        BufferedImage imgSmartURL = ImageIO.read(new File("D:\\Programming\\mill_deluxe_version\\src\\Assets\\muehle_brett_mit_punkten.png"));
+        BufferedImage imgSmartURL = ImageIO.read(Objects.requireNonNull(this.getClass().getResource("Assets\\muehle_brett_mit_punkten.png")));
         ImageIcon bg = new ImageIcon(imgSmartURL);
         MAIN_LABEL.setOpaque(true);
         MAIN_LABEL.setBackground(new Color(233, 220, 211));
@@ -53,20 +52,24 @@ public class Mill_Interface {
         abbruch.setBorder(border);
         abbruch.setText("Aufgeben");
         abbruch.setVisible(true);
-        MyMouseListener ml = new MyMouseListener(abbruch);
-        abbruch.addMouseListener(ml);
+
+        abbruch.addActionListener(e -> {
+            Client.send_data("giveUp" + color);
+        });
 
         neustart.setBounds(10, 625, 100, 20);
         neustart.setBorder(border);
         neustart.setText("Neustart");
         neustart.setVisible(false);
-        MyMouseListener ml_nst = new MyMouseListener(neustart);
-        neustart.addMouseListener(ml_nst);
 
-        init_cells(color);
+        neustart.addActionListener(e -> {
+            Client.send_data("restart" + color);
+        });
+
+        init_cells();
     }
 
-    void init_cells(String color){
+    void init_cells(){
         // specific values for the cells in relation to the MAIN_FRAME
         int w = MAIN_FRAME.getWidth();
         int h = MAIN_FRAME.getHeight();
@@ -166,14 +169,12 @@ public class Mill_Interface {
             c.getLabel().setOpaque(false);
         }
         if (winner.equals("white")){
-            BufferedImage imgSmartURL = ImageIO.read(new File("D:\\Programming\\mill_deluxe_version\\src\\Assets\\brett_gewinn_white.png"));
-            ImageIcon bg = new ImageIcon(imgSmartURL);
-            MAIN_LABEL.setIcon(bg);
-        }else{
-            BufferedImage imgSmartURL = ImageIO.read(new File("D:\\Programming\\mill_deluxe_version\\src\\Assets\\brett_gewinn_black.png"));
-            ImageIcon bg = new ImageIcon(imgSmartURL);
+            ImageIcon bg = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\brett_gewinn_white.png")));
             MAIN_LABEL.setIcon(bg);
 
+        }else{
+            ImageIcon bg = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\brett_gewinn_black.png")));
+            MAIN_LABEL.setIcon(bg);
         }
 
         neustart.setVisible(true);
@@ -185,8 +186,9 @@ public class Mill_Interface {
         MAIN_FRAME.revalidate();
     }
 
-    void draw(String color) throws IOException {
-        init(color);
+    void draw(String c) throws IOException {
+        color = c;
+        init();
         // initialise interface
 
         // ADD ALL TO MAIN_LABEL //
@@ -200,6 +202,17 @@ public class Mill_Interface {
         MAIN_FRAME.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         MAIN_FRAME.add(MAIN_LABEL);
         MAIN_FRAME.setVisible(true);
+    }
+
+    void restart(String color_of_requesting_player) throws IOException {
+        System.out.println(color_of_requesting_player);
+        if (color.equals(color_of_requesting_player)){ // i requested to play again
+            // picture of waiting screen play again?
+            draw(color);
+        } else {
+            draw(color);
+            // picture of wanna play again?
+        }
     }
 
     void set_stone(int i, char ch){
@@ -237,6 +250,10 @@ public class Mill_Interface {
 
     public boolean isMyTurn() {
         return myTurn;
+    }
+
+    public static JFrame getMainFrame() {
+        return MAIN_FRAME;
     }
 
     public void setMyTurn(boolean myTurn) {
