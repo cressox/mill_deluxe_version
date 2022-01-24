@@ -4,36 +4,30 @@ import java.util.Arrays;
 
 public class Player {
     int id;
-    private String color;
+    private final String color;
     private int stones_to_set = 9;
     private int stones_in_game = 0;
 
     // for logic //
-    private Stone[] stones = new Stone[9];
+    private final Stone[] stones = new Stone[9];
 
     // GUI //
     ImageIcon icon;
     ImageIcon iconActive;
-    private String imgURL;
-    private String imgURLActive;
-    JTextArea label = new JTextArea();
-    JTextArea info = new JTextArea();
-    private Color COLOR_OF_GUI = new Color(233, 220, 211);
+    private final Color COLOR_OF_GUI = new Color(233, 220, 211);
 
     public Player(int id, String color, String imgUrl, String imgURLActive) {
         this.id = id;
         this.color = color;
-        this.label = label;
-        this.info = info;
         for (int i=1; i<=9; i++){ // initialise stones as objects in the field stones
-            stones[i-1] = new Stone(i + ((id-1)*9), color, this);
+            stones[i-1] = new Stone(i + ((id-1)*9), color);
         }
         icon = new ImageIcon(imgUrl);
         iconActive = new ImageIcon(imgURLActive);
     }
 
     // METHODS //
-    public boolean set_stone(Cell c, String cell_player_color){ // zelle die angeklickt wurde muss mit übergeben werden um sie zuordnen zu können
+    public boolean set_stone(Cell c){ // zelle die angeklickt wurde muss mit übergeben werden um sie zuordnen zu können
         if (getStones_in_game() < 9 && c.isIs_empty()){
             stones[getStones_in_game()].setIs_set(true); // stein ist sichtbar
             stones[getStones_in_game()].setCell(c); // ordnet stein die zelle zu
@@ -41,7 +35,7 @@ public class Player {
             c.setIs_empty(false); // zelle ist nicht mehr leer
             c.setStone(stones[getStones_in_game()]); // ordnet zelle den stein zu
 
-            select_stone(c, false);
+            select_stone(c);
 
             setStones_in_game(getStones_in_game() + 1);
             setStones_to_set(getStones_to_set() - 1);
@@ -53,9 +47,9 @@ public class Player {
         }
     }
 
-    void select_stone(Cell c, boolean selected){
-        c.getLabel().setIcon(selected ? iconActive : icon);
-        c.getStone().setIs_visible(selected);
+    void select_stone(Cell c){
+        c.getLabel().setIcon(false ? iconActive : icon);
+        c.getStone().setIs_visible(false);
     }
 
     void move_stone(Cell start_cell, Cell end_cell){
@@ -99,10 +93,6 @@ public class Player {
         return stones;
     }
 
-    public void setStones(Stone[] stones) {
-        this.stones = stones;
-    }
-
     public int getStones_to_set() {
         return stones_to_set;
     }
@@ -121,9 +111,5 @@ public class Player {
 
     public String getColor() {
         return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
     }
 }

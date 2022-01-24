@@ -10,11 +10,11 @@ public class Mill_Interface {
     // GAME VARIABLES //
     boolean myTurn = false; // ability to set/take/move stones
 
-    private static Cell[] cells = new Cell[24]; // cells in the game where stones can take place
-    private static JFrame MAIN_FRAME = new JFrame();
-    private static JLabel MAIN_LABEL = new JLabel();
-    private static JButton abbruch = new JButton();
-    private static JButton neustart = new JButton();
+    private static final Cell[] cells = new Cell[24]; // cells in the game where stones can take place
+    private static final JFrame MAIN_FRAME = new JFrame();
+    private static final JLabel MAIN_LABEL = new JLabel();
+    private static final JButton abbruch = new JButton();
+    private static final JButton neustart = new JButton();
 
     ImageIcon icon_black = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\black.png")));
 
@@ -53,18 +53,14 @@ public class Mill_Interface {
         abbruch.setText("Aufgeben");
         abbruch.setVisible(true);
 
-        abbruch.addActionListener(e -> {
-            Client.send_data("giveUp" + color);
-        });
+        abbruch.addActionListener(e -> Client.send_data("giveUp" + color));
 
         neustart.setBounds(10, 625, 100, 20);
         neustart.setBorder(border);
         neustart.setText("Neustart");
         neustart.setVisible(false);
 
-        neustart.addActionListener(e -> {
-            Client.send_data("restart" + color);
-        });
+        neustart.addActionListener(e -> Client.send_data("restart" + color));
 
         init_cells();
     }
@@ -168,14 +164,14 @@ public class Mill_Interface {
             c.getLabel().setVisible(false);
             c.getLabel().setOpaque(false);
         }
+        ImageIcon bg;
         if (winner.equals("white")){
-            ImageIcon bg = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\brett_gewinn_white.png")));
-            MAIN_LABEL.setIcon(bg);
+            bg = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\brett_gewinn_white.png")));
 
         }else{
-            ImageIcon bg = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\brett_gewinn_black.png")));
-            MAIN_LABEL.setIcon(bg);
+            bg = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("Assets\\brett_gewinn_black.png")));
         }
+        MAIN_LABEL.setIcon(bg);
 
         neustart.setVisible(true);
         neustart.setOpaque(true);
@@ -206,13 +202,7 @@ public class Mill_Interface {
 
     void restart(String color_of_requesting_player) throws IOException {
         System.out.println(color_of_requesting_player);
-        if (color.equals(color_of_requesting_player)){ // i requested to play again
-            // picture of waiting screen play again?
-            draw(color);
-        } else {
-            draw(color);
-            // picture of wanna play again?
-        }
+        draw(color);
     }
 
     void set_stone(int i, char ch){
@@ -236,10 +226,6 @@ public class Mill_Interface {
 
     }
 
-    public static Cell[] getCells() {
-        return cells;
-    }
-
     public ImageIcon getIcon_black() {
         return icon_black;
     }
@@ -250,10 +236,6 @@ public class Mill_Interface {
 
     public boolean isMyTurn() {
         return myTurn;
-    }
-
-    public static JFrame getMainFrame() {
-        return MAIN_FRAME;
     }
 
     public void setMyTurn(boolean myTurn) {

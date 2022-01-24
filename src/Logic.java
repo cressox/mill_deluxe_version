@@ -2,12 +2,9 @@ import java.util.Arrays;
 
 public class Logic {
     int id;
-    String test = "";
-
-    boolean my_turn = false; // cant interact
     String isWinner; // cant interact
 
-    private static Cell[] cells = new Cell[24]; // cells in the game where stones can take place
+    private static final Cell[] cells = new Cell[24]; // cells in the game where stones can take place
     private Player p1; // X = white;
     private Player p2; // O = black;
 
@@ -19,7 +16,6 @@ public class Logic {
 
     private int num_of_clicked_cells = 0;
     private Cell tmpCell1;
-    private Cell tmpCell2;
     public boolean isMill = false;
     public boolean gameOver = false;
 
@@ -27,7 +23,7 @@ public class Logic {
         this.id = id;
     }
 
-    public void init(int id_p1, int id_p2, String color_p1, String color_p2){
+    public void init(int id_p1, int id_p2){
         p1 = new Player(id_p1, "white", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white.png", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\white-red.png");
         p2 = new Player(id_p2, "black", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black.png", "D:\\Programming\\mill_deluxe_version\\src\\Assets\\black-red.png");
         init_cells();
@@ -121,19 +117,19 @@ public class Logic {
     }
 
     public String current_game_state_as_string(){
-        String result_string = "";
+        StringBuilder result_string = new StringBuilder();
         for (Cell cell:cells){
             if (cell.getStone() == null){
-                result_string += "n";
+                result_string.append("n");
             }
             else if (cell.getStone().getColor().equals("white")){
-                result_string += "w";
+                result_string.append("w");
             }
             else {
-                result_string += "b";
+                result_string.append("b");
             }
         }
-        return result_string;
+        return result_string.toString();
     }
 
     public int count_char(char countChar){
@@ -145,14 +141,6 @@ public class Logic {
         return count;
     }
 
-    Player choose_player(Player p1, Player p2){
-        if ((int)(Math.random()*2) == 0){
-            return p1;
-        } else {
-            return p2;
-        }
-    }
-
     void first_stage(Cell c, String cell_player_color){
         System.out.println(p1.getStones_to_set() + "" + p2.getStones_to_set());
         if (p1.getStones_to_set() == 0 && p2.getStones_to_set() == 0){ // stage one ends and the second stage starts cause no stones to set left
@@ -161,7 +149,7 @@ public class Logic {
         } else{
             if (isMill){
                 if (c.getStone() != null && (cell_player_color.equals("white"))){
-                    if (!is_mill(c, cell_player_color) || only_mills_in_game(p2, cell_player_color)) {
+                    if (!is_mill(c) || only_mills_in_game(p2, cell_player_color)) {
                         p1.take_stone(c);
                         p2.setStones_in_game(p2.getStones_in_game() - 1);
                         //isMill = false;
@@ -171,7 +159,7 @@ public class Logic {
                         //isMill = false;
                     }
                 } else {
-                    if (!is_mill(c, cell_player_color) || only_mills_in_game(p1, cell_player_color)) {
+                    if (!is_mill(c) || only_mills_in_game(p1, cell_player_color)) {
                         p2.take_stone(c);
                         p1.setStones_in_game(p1.getStones_in_game() - 1);
                         //isMill = false;
@@ -183,17 +171,17 @@ public class Logic {
                 }
             }
             else if (cell_player_color.equals("white")){
-                if(p1.set_stone(c, cell_player_color)) {
+                if(p1.set_stone(c)) {
                     System.out.println(cell_player_color + " p1");
-                    if (is_mill(c, cell_player_color)) { // mühle
+                    if (is_mill(c)) { // mühle
                         this.isMill = true;
                         System.out.println("now mill" + isMill);
                     }
                 }
             }else {
-                if(p2.set_stone(c, cell_player_color)) {
+                if(p2.set_stone(c)) {
                     System.out.println(cell_player_color + " p2");
-                    if (is_mill(c, cell_player_color)) { // mühle
+                    if (is_mill(c)) { // mühle
                         this.isMill = true;
                         System.out.println("now mill " + isMill);
 
@@ -210,18 +198,18 @@ public class Logic {
         System.out.println("p2: sig: " + p2.getStones_in_game());
         if (isMill && (c.getStone() != null)) { // spieler hat mühle und pot weggenommene zelle ist nicht leer
             if (!c.getStone().getColor().equals("white")) { // darf nicht eigener stein sein
-                if (!is_mill(c, cell_player_color) || only_mills_in_game(p2, cell_player_color)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
+                if (!is_mill(c) || only_mills_in_game(p2, cell_player_color)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
                     p1.take_stone(c); // spieler nimmt stein des anderen spielers
                     p2.setStones_in_game(p2.getStones_in_game() - 1);
                     if (is_blocked(p2)) {
-                        winning(p1.getColor(), true);
+                        winning(p1.getColor());
                     }
                 }
-            } else if (!is_mill(c, cell_player_color) || only_mills_in_game(p1, cell_player_color)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
+            } else if (!is_mill(c) || only_mills_in_game(p1, cell_player_color)){ // darf nicht aus mühle kommen außer wenn nur mühlen sind
                 p2.take_stone(c); // spieler nimmt stein des anderen spielers
                 p1.setStones_in_game(p1.getStones_in_game() - 1);
                 if (is_blocked(p1)) {
-                    winning(p2.getColor(), true);
+                    winning(p2.getColor());
                 }
             }
         }
@@ -231,14 +219,14 @@ public class Logic {
                 case 0 : {
                     if (cell_player_color.equals("white")) {
                         if (is_blocked(p1)) {
-                            winning(p2.getColor(), true);
+                            winning(p2.getColor());
                         } else if ((c.getStone() != null)) { // erste zelle darf nicht leer sein
                             num_of_clicked_cells += 1;
                             tmpCell1 = c;
                         }
                     }else{
                         if (is_blocked(p2)) {
-                            winning(p1.getColor(), true);
+                            winning(p1.getColor());
                         }
                         else if ((c.getStone() != null)) { // erste zelle darf nicht leer sein
                             num_of_clicked_cells += 1;
@@ -250,30 +238,29 @@ public class Logic {
                 case 1 : {
                     if ((c != tmpCell1) && (c.isIs_empty())) { // nicht 2 mal selbe zelle und 2. zelle muss leer sein
                         if (is_in_neigbors(tmpCell1, c) || p1.getStones_in_game() <= 3 || p2.getStones_in_game() <= 3) { // zelle darf nur 1 platz weiter
-                            tmpCell2 = c;
                             num_of_clicked_cells = 0; // zähler für start und end auf null
 
                             if (cell_player_color.equals("white")){
                                 if (is_in_neigbors(tmpCell1, c)){
-                                    p1.move_stone(tmpCell1, tmpCell2); // bewegen
+                                    p1.move_stone(tmpCell1, c); // bewegen
                                 }
                                 else if (count_char('w')<=3) {
-                                    if (tmpCell1.getStone().getColor() == p1.getColor()){
-                                        p1.move_stone(tmpCell1, tmpCell2); // bewegen
+                                    if (tmpCell1.getStone().getColor().equals(p1.getColor())){
+                                        p1.move_stone(tmpCell1, c); // bewegen
                                     }
                                 }
                             }else{
                                 if (is_in_neigbors(tmpCell1, c)){
-                                    p2.move_stone(tmpCell1, tmpCell2); // bewegen
+                                    p2.move_stone(tmpCell1, c); // bewegen
                                 }
                                 else if (count_char('b')<=3) {
-                                    if (tmpCell1.getStone().getColor() == p2.getColor()){
-                                        p2.move_stone(tmpCell1, tmpCell2); // bewegen
+                                    if (tmpCell1.getStone().getColor().equals(p2.getColor())){
+                                        p2.move_stone(tmpCell1, c); // bewegen
                                     }
                                 }
                             }
 
-                            if (is_mill(tmpCell2, cell_player_color)) { // spieler hat mühle
+                            if (is_mill(c)) { // spieler hat mühle
                                 isMill = true; // spieler nimmt stein des anderen spielers
 //                                System.out.println("mühle");
                             }
@@ -283,11 +270,11 @@ public class Logic {
                         }
                     } else if (cell_player_color.equals("white")){
                         if (is_blocked(p1)) {
-                            winning(p2.getColor(), true);
+                            winning(p2.getColor());
                         }
                     } else {
                         if (is_blocked(p2)) {
-                            winning(p1.getColor(), true);
+                            winning(p1.getColor());
                         }
                     }
                 }
@@ -295,14 +282,27 @@ public class Logic {
         }
     }
 
-    private boolean only_mills_in_game(Player p, String cell_player_color){ // checkt ob nur mühlen existieren
-        for (Stone s : p.getStones()){
-            if (s.getCell() != null) {
-                if (!is_mill(s.getCell(), cell_player_color)) {
-                    return false;
+    private boolean only_mills_in_game(Player p, String cell_player_color) { // checkt ob nur mühlen existieren
+        String game_state = current_game_state_as_string();
+        char[] gs = game_state.toCharArray();
+        int i = 0;
+        for (char c : gs) {
+            if (c == 'n') continue;
+            if (c == 'w' && p.getColor().equals("white")) {
+                int[] tmp = cells[i].getNeighbors();
+                for (int t : tmp) {
+                    if (gs[t]!='w') return false;
                 }
             }
+            if (c == 'b' && p.getColor().equals("black")) {
+                int[] tmp = cells[i].getNeighbors();
+                for (int t : tmp) {
+                    if (gs[t]!='b') return false;
+                }
+            }
+            i++;
         }
+        System.out.println("only mills");
         return true;
     }
 
@@ -311,94 +311,80 @@ public class Logic {
             return true;
         }
         if (cell_player_color.equals("white")){
-            if (p1.getColor() == c.getStone().getColor()) {
-                return true;
-            } else {
-                return false;
-            }
+            return p1.getColor().equals(c.getStone().getColor());
         }else{
-            if (p2.getColor() == c.getStone().getColor()) {
-                return true;
-            } else {
-                return false;
-            }
+            return p2.getColor().equals(c.getStone().getColor());
         }
     }
 
-    boolean is_mill(Cell c, String cell_player_color){
-        System.out.println(cell_player_color);
-        System.out.println(Arrays.toString(c.getLines()));
-        for (String line : c.getLines()){
-            int num_of_same_stones_in_line = 0;
-            for (Cell tmpCell : cells){
-                if (Arrays.asList(tmpCell.getLines()).contains(line) && !tmpCell.isIs_empty()){ // cell in cells has same line and cell cant be empty
-                    if (tmpCell.getStone().getColor()==null) continue;
-                    if ((tmpCell.getStone().getColor().equals(cell_player_color))){ // same stone color
-                        num_of_same_stones_in_line++; // one stone more in line
-                        System.out.println(tmpCell.getStone().getColor() + " id: " + tmpCell.getId());
+    boolean is_mill(Cell c){
+        String game_state = current_game_state_as_string();
+        char[] gs = game_state.toCharArray();
+        String[] ls = c.getLines();
+        for (String line : ls){
+            int m = 0;
+            for (Cell cell : cells){
+                System.out.println(Arrays.toString(cell.getLines()));
+                System.out.println(cell.getLines()[0]);
+                System.out.println(c.getLines()[0]);
+                System.out.println(Arrays.toString(c.getLines()));
+                System.out.println(line);
+                if (cell.getLines()[0].equals(line) || cell.getLines()[1].equals(line)){
+                    if (gs[cell.getId()]==gs[c.getId()]){
+                        System.out.println("Cell num " + cell.getId() + ": " + gs[cell.getId()]);
+                        System.out.println("Cell num " + c.getId() + ": " + gs[c.getId()]);
+                        m++;
                     }
                 }
             }
-            if (num_of_same_stones_in_line == 3) {
-                return true;
-            }
-
+            if (m==3) return true;
         }
 
         return false;
     }
 
-    boolean is_game_running(){
+    void is_game_running(){
         if ((p1.getStones_in_game() <= 2) && (this.stage != 1)){ // p2 is winning
-            winning(p2.getColor(), true);
+            winning(p2.getColor());
             gameOver = true;
             isWinner = "black";
-            return false;
         } else if ((p2.getStones_in_game() <= 2) && (this.stage != 1)){ // p1 is winning
-            winning(p1.getColor(), true);
+            winning(p1.getColor());
             gameOver = true;
             isWinner = "white";
-            return false;
-        } else { // game is still running
-            return true;
         }
+
     }
 
     private boolean is_blocked(Player p){
-        String game_state = current_game_state_as_string();
-        char[] gs = game_state.toCharArray();
-        int i = 0;
-        for (char c : gs){
-            if (c=='n') continue;
-            if (c=='w' && p.getColor().equals("white")){
-                int [] tmp = cells[i].getNeighbors();
-                for (int t : tmp){
-                    if (cells[t].isIs_empty()) return true;
-                }
-            }
-            if (c=='b' && p.getColor().equals("black")){
-                int [] tmp = cells[i].getNeighbors();
-                for (int t : tmp){
-                    if (cells[t].isIs_empty()) return true;
-                }
-            }
-            i++;
-        }
-
         return false;
+//        String game_state = current_game_state_as_string();
+//        char[] gs = game_state.toCharArray();
+//        int i = 0;
+//        for (char c : gs){
+//            if (c=='n') continue;
+//            if (c=='w' && p.getColor().equals("white")){
+//                int [] tmp = cells[i].getNeighbors();
+//                for (int t : tmp){
+//                    if (cells[t].isIs_empty()) return true;
+//                }
+//            }
+//            if (c=='b' && p.getColor().equals("black")){
+//                int [] tmp = cells[i].getNeighbors();
+//                for (int t : tmp){
+//                    if (cells[t].isIs_empty()) return true;
+//                }
+//            }
+//            i++;
     }
 
-    void winning(String color, boolean send){
+    void winning(String color){
         if (color.equals("white")){
-            if (send) {
-                gameOver = true;
-                isWinner = "white";
-            }
+            gameOver = true;
+            isWinner = "white";
         } else {
-            if (send) {
-                gameOver = true;
-                isWinner = "black";
-            }
+            gameOver = true;
+            isWinner = "black";
         }
     }
 
@@ -415,68 +401,8 @@ public class Logic {
 
     // GETTER AND SETTER //
 
-    public boolean isMy_turn() {
-        return my_turn;
-    }
-
-    public void setMy_turn(boolean my_turn) {
-        this.my_turn = my_turn;
-    }
-
-    public static Cell[] getCells() {
-        return cells;
-    }
-
-    public static void setCells(Cell[] cells) {
-        Logic.cells = cells;
-    }
-
-    public Player getP1() {
-        return p1;
-    }
-
-    public void setP1(Player p1) {
-        this.p1 = p1;
-    }
-
-    public Player getP2() {
-        return p2;
-    }
-
-    public void setP2(Player p2) {
-        this.p2 = p2;
-    }
-
-    public int getStage() {
-        return stage;
-    }
-
     public void setStage(int stage) {
         this.stage = stage;
-    }
-
-    public int getNum_of_clicked_cells() {
-        return num_of_clicked_cells;
-    }
-
-    public void setNum_of_clicked_cells(int num_of_clicked_cells) {
-        this.num_of_clicked_cells = num_of_clicked_cells;
-    }
-
-    public Cell getTmpCell1() {
-        return tmpCell1;
-    }
-
-    public void setTmpCell1(Cell tmpCell1) {
-        this.tmpCell1 = tmpCell1;
-    }
-
-    public Cell getTmpCell2() {
-        return tmpCell2;
-    }
-
-    public void setTmpCell2(Cell tmpCell2) {
-        this.tmpCell2 = tmpCell2;
     }
 
     public boolean isMill() {
@@ -491,27 +417,7 @@ public class Logic {
         return gameOver;
     }
 
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setTest(String test) {
-        this.test = test;
-    }
-
-    public String getTest() {
-        return test;
-    }
-
     public String getIsWinner() {
         return isWinner;
-    }
-
-    public void setIsWinner(String isWinner) {
-        this.isWinner = isWinner;
     }
 }

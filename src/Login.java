@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.event.WindowEvent;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
@@ -32,18 +31,9 @@ public class Login {
     static JTextField password_label = new JTextField();
 
     static JLabel info = new JLabel();
-
-    static int user_id;
-
     static Lobby lobby;
 
     public Login() throws UnknownHostException {
-    }
-
-
-
-    public static void main(String[] args) throws SQLException {
-        //db_con.wipe_all(ip);
     }
 
     public static void init(){
@@ -109,11 +99,6 @@ public class Login {
         ROOT.revalidate();
         label_to_add.repaint();
         label_to_add.revalidate();
-    }
-
-    public void back(){
-        ROOT.dispatchEvent(new WindowEvent(ROOT, WindowEvent.WINDOW_CLOSING));
-        draw();
     }
 
     public static void login_fkt(){
@@ -189,7 +174,7 @@ public class Login {
 
                     lobby = new Lobby(Integer.parseInt(user.get("id")));
                     System.out.println(Integer.parseInt(user.get("id")));
-                    lobby.draw();
+                    Lobby.draw();
                 }else {
                     password_label.setText("already logged in from ip: " + user.get("ip"));
                 }
@@ -207,16 +192,5 @@ public class Login {
         }else{
             password_label.setText("already registered pls log in");
         }
-    }
-    public int getUser_id() {
-        return user_id;
-    }
-
-    public static Lobby getLobby() {
-        return lobby;
-    }
-
-    public static JFrame getROOT() {
-        return ROOT;
     }
 }

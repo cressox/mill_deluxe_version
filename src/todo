@@ -1,8 +1,0 @@
-logic.interpret data
-    verlieren durch blockieren
-        back to lobby
-
-mill game close after connection lost
-frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-
-update lobby if in lobby and other client start/join game

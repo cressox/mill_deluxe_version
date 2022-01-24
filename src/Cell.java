@@ -2,14 +2,14 @@ import javax.swing.*;
 import java.util.Arrays;
 
 public class Cell {
-    private int id;
+    private final int id;
     private boolean is_empty = true;
     private Stone stone;
     private int[] neighbors;
     private String[] lines; // lines of the rects
     private String color_of_player;
 
-    private JLabel label = new JLabel();
+    private final JLabel label = new JLabel();
 
     public Cell(int id) {
         this.id = id;
@@ -26,10 +26,6 @@ public class Cell {
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public boolean isIs_empty() {
@@ -52,24 +48,8 @@ public class Cell {
         return label;
     }
 
-    public void setLabel(JLabel label) {
-        this.label = label;
-    }
-
-    public int[] getNeighbors() { // per lenth und index kann zugegriffen werden
+    public int[] getNeighbors() {
         return this.neighbors;
-    }
-
-    public void printNeighbors() { // for debugging to print neighbors
-        System.out.print("[");
-        for (int i = 0; i < this.neighbors.length; i++) {
-            if (i == this.neighbors.length - 1) {
-                System.out.print(this.neighbors[i]);
-            } else {
-                System.out.print(this.neighbors[i] + ", ");
-            }
-        }
-        System.out.print("]\n");
     }
 
     public void setNeighbors(int[] neighbors) {

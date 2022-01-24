@@ -18,10 +18,9 @@ class ClientHandler {
     private BufferedReader in;
     private boolean should_receive = true;
     private boolean ready_to_play = false;
-    private boolean in_game = false;
     private final InetAddress ip;
-    ClientHandler online_users[];
-    ClientHandler other_ch;
+    private ClientHandler[] online_users;
+    private ClientHandler other_ch;
 
     // GAME LOGIC //
     private Logic lgc;
@@ -38,18 +37,18 @@ class ClientHandler {
     public void run()
     {
         try {
-            // get the outputstream of client
+            // get the outputted of client
             out = new PrintWriter(
                     clientSocket.getOutputStream(), true);
 
-            // get the inputstream of client
+            // get the inputted of client
             in = new BufferedReader(
                     new InputStreamReader(
                             clientSocket.getInputStream()));
 
             System.out.println("new CH_CON for " + ip.getHostAddress());
             new Thread(this::receive_data).start();
-            // abgekapselt vom main thread
+            // encapsulated vom main thread
 
         }
         catch (IOException e) {
@@ -80,6 +79,7 @@ class ClientHandler {
                         catch (NumberFormatException e){
                             System.out.println(data + " is not numeric");
                         }
+
                     } else if (data.contains("millId")){ // get mill id from client
                         try { // getting the id from the user who logged in
                             this.mill_game_to_join_by_id = Integer.parseInt(data.replace("millId=", ""));
@@ -87,26 +87,31 @@ class ClientHandler {
                         catch (NumberFormatException e){
                             System.out.println(data + " is not numeric");
                         }
+
                     }else if (data.contains("update")){ // get mill id from client
                         update();
+
                     } else if (data.contains("giveUp")) {
                         init_lgc(mill_game_to_join_by_id, ip);
                         String player_color = data.replace("giveUp", "");
                         send_data("win" + (player_color.equals("white")?"black":"white"));
                         other_ch.send_data("win" + (player_color.equals("white")?"black":"white"));
+
                     } else if (data.contains("restart")) {
                         String player_color = data.replace("restart", "");
                         send_data("restart" + player_color);
                         other_ch.send_data("restart" + player_color);
+
                     } else if (ready_to_play){
                         Map<String,String> mill = db_con.getMillByID(mill_game_to_join_by_id, ip);
                         if (mill.isEmpty()){ // game dies
                             ready_to_play = false;
                             send_data("lobby");
                         }
+
                         else {
                             String tmpStateOfGame = lgc.current_game_state_as_string();
-                            Boolean isThereAMill = lgc.isMill();
+                            boolean isThereAMill = lgc.isMill();
                             System.out.println("current state of isMill: " + lgc.isMill());
                             if (lgc.interpret_client_request(data)) {
                                 System.out.println("valid turn current game state: " + lgc.current_game_state_as_string());
@@ -118,6 +123,7 @@ class ClientHandler {
                                         other_ch.send_data("turnOn");
                                         send_data("turnOff");
                                     }
+
                                 } else {
                                     if ((!tmpStateOfGame.equals(lgc.current_game_state_as_string()))){
                                         other_ch.send_data("turnOn");
@@ -126,6 +132,7 @@ class ClientHandler {
                                 }
                                 System.out.println("current state of isMill: " + lgc.isMill());
                             }
+
                             if (lgc.isGameOver()){ // game over
                                 ready_to_play = false;
                                 send_data("win" + lgc.getIsWinner());
@@ -137,8 +144,8 @@ class ClientHandler {
                         join_game();
                         ready_to_play = true;
                         update();
-                    }
-                    else if (data.contains("start")){
+
+                    } else if (data.contains("start")){
                         start_game();
                         ready_to_play = true;
                         update();
@@ -151,12 +158,12 @@ class ClientHandler {
                 should_receive = false;
                 try {
                     disconnect();
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
                 }
                 e.printStackTrace();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
             }
         }
 
@@ -259,7 +266,7 @@ class ClientHandler {
         System.out.println(p2);
 
 //        System.out.println(tmp_lgc.getP1());
-        lgc.init(id_p1, id_p2, color_p1, color_p2);
+        lgc.init(id_p1, id_p2);
 //        System.out.println(tmp_lgc.getP1());
 
 
@@ -278,14 +285,6 @@ class ClientHandler {
 
     public int getId() {
         return id;
-    }
-
-    public int getMill_game_to_join_by_id() {
-        return mill_game_to_join_by_id;
-    }
-
-    public void setMill_game_to_join_by_id(int mill_game_to_join_by_id) {
-        this.mill_game_to_join_by_id = mill_game_to_join_by_id;
     }
 
     public void setOnline_users(ClientHandler[] online_users) {

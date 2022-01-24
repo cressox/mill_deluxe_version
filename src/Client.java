@@ -22,24 +22,19 @@ class Client {
     private static PrintWriter out;
     private static BufferedReader in;
     private static boolean should_receive = true;
-    private static boolean logged_in = true;
-    private static Socket socket;
-    private static Mill_Interface mill_interface = new Mill_Interface();
-    private static Player player;
+    private static final Mill_Interface mill_interface = new Mill_Interface();
 
-    Client() throws UnknownHostException {
+    Client() {
     }
 
     // driver code
-    public static void main(String[] args) throws IOException {
-//        mill_interface.draw("white");
+    public static void main(String[] args) {
         login.draw();
-        //new Thread(Client::check_if_logged_in).start(); // encapsulated vom main thread check if logged in
     }
 
     public static void connect_to_server(){
         try {
-            socket = new Socket("localhost", 1234);
+            Socket socket = new Socket("localhost", 1234);
             // writing to server
             out = new PrintWriter(
                     socket.getOutputStream(), true);
@@ -48,7 +43,7 @@ class Client {
             in = new BufferedReader(new InputStreamReader(
                     socket.getInputStream()));
 
-            new Thread(Client::receive_data).start(); // abgekapselt vom main thread
+            new Thread(Client::receive_data).start(); // encapsulated vom main thread
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,10 +65,10 @@ class Client {
                 if (data != null) {
                     if (data.contains("lobby")){ // game dies, back to lobby
                         // winning by quit of the other player
-                        login.getLobby().draw(); // paint lobby
+                        Lobby.draw(); // paint lobby
 
                     }else if (data.contains("update")){
-                        login.getLobby().update_all();
+                        Lobby.update_all();
 
                     }else if (data.contains("join")){
                         mill_interface.draw("black");
@@ -96,7 +91,7 @@ class Client {
                         mill_interface.restart(color_of_requesting_player);
 
                     }else {
-                        interpret_incomming_data(data);
+                        interpret_incoming_data(data);
 
                     }
                 } else { // server dead
@@ -110,7 +105,7 @@ class Client {
     }
 
     // INTERPRET DATA FROM CH //
-    public static void interpret_incomming_data(String data){
+    public static void interpret_incoming_data(String data){
         System.out.println(data);
 
         int i = 0;

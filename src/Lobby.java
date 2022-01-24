@@ -8,16 +8,12 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class Lobby{
-    static InetAddress ip;
-    static ClientHandler[] online_users;
-    static DB_Connector db_con = new DB_Connector();
-
-    static Mill_Interface mill_interface;
-
-    static int user_id=-1;
+    private static InetAddress ip;
+    private static final DB_Connector db_con = new DB_Connector();
+    private static int user_id=-1;
 
     public Lobby(int user_id) {
-        this.user_id = user_id;
+        Lobby.user_id = user_id;
     }
 
     static {
@@ -41,11 +37,6 @@ public class Lobby{
 
 
     static String[][] data;
-
-    public static void main(String[] args) throws SQLException {
-        db_con.wipe_all(ip);
-//        draw();
-    }
 
     static void draw() throws SQLException {
         ROOT.setSize(900, 500);
@@ -90,23 +81,16 @@ public class Lobby{
             Client.send_data("start");
             try {
                 update_all();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
             }
         });
     }
 
     static void create_table_of_games() throws SQLException {
         games_panel.setLayout(new GridLayout());
-//        db_con.insert_mill(1, 1, -1, ip);
-//        db_con.insert_mill(2, 2, -1, ip);
-//        db_con.insert_mill(3, 3, -1, ip);
-//        db_con.insert_mill(4, 4, -1, ip);
-//        db_con.insert_mill(5, 5, -1, ip);
         int[] players_waiting = db_con.get_player_in_game_ids(ip);
-
-
-        set_waiting_games_in_label(games_panel, players_waiting);
+        set_waiting_games_in_label(players_waiting);
         scroll_pane_games = new JScrollPane(games_panel, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         scroll_pane_games.setPreferredSize(new Dimension(540, 300));
         add_scroll_pane(scroll_pane_games, LEFT_panel);
@@ -133,12 +117,10 @@ public class Lobby{
         add_scroll_pane(scroll_pane_players, RIGHT_panel);
     }
 
-    static void set_waiting_games_in_label(JPanel label, int[] player_ids_in_game_waiting) throws SQLException {
-        int i = 0;
+    static void set_waiting_games_in_label(int[] player_ids_in_game_waiting) throws SQLException {
         for (int player_id : player_ids_in_game_waiting) {
             Map<String, String> tmpPlayer = db_con.getPlayerByID(player_id, ip);
-            if (tmpPlayer.get("mill_id") == null) { // no game running with this player
-            } else {
+            if (!(tmpPlayer.get("mill_id") == null)) { // no game running with this player
                 // picture from https://appoftheday.downloadastro.com/wp-content/uploads/2019/09/The-Mill-App-Icon.png date: 20.01.2022 - 11:45 //
                 add_btn(new JButton(),
                         games_panel,
@@ -146,7 +128,6 @@ public class Lobby{
                                 "width=\"150\" height=\"150\"><br/>join mill game " + tmpPlayer.get("mill_id") + " now!<br/" +
                                 "<br/><br/>player:<br/>" + tmpPlayer.get("username") + "<br/><br/>is waiting 1/2</html>"),
                         Integer.parseInt((tmpPlayer.get("mill_id"))));
-                i++;
             }
         }
     }
@@ -157,8 +138,8 @@ public class Lobby{
         btn_to_add.addActionListener(e -> {
             try {
                 btn_fkt(mill_id, user_id);
-            } catch (SQLException | IOException throwables) {
-                throwables.printStackTrace();
+            } catch (SQLException | IOException throwable) {
+                throwable.printStackTrace();
             }
         });
         panel.add(btn_to_add);
@@ -168,8 +149,6 @@ public class Lobby{
         System.out.println(mill_id_to_join + " " + user_who_wants_to_join_id);
         db_con.set_player_in_game(user_who_wants_to_join_id, mill_id_to_join, ip);
         update_all();
-//        mill_interface = new Mill_Interface();
-//        mill_interface.draw();
 
         // CONNECT TO SERVER //
         // needs create function too //
@@ -185,7 +164,7 @@ public class Lobby{
         }
 
         int[] players_waiting = db_con.get_player_in_game_ids(ip);
-        set_waiting_games_in_label(games_panel, players_waiting);
+        set_waiting_games_in_label(players_waiting);
 
         components = RIGHT_panel.getComponents();
         for (Component component : components) {
@@ -210,33 +189,9 @@ public class Lobby{
         table.repaint();
     }
 
-    public static void add_txt(JTextField txt_to_add, JLabel label, String text, int x, int y, int width, int height){
-        txt_to_add.setBounds(x,y,width,height);
-        txt_to_add.setText(text);
-        txt_to_add.setVisible(true);
-        txt_to_add.setOpaque(true);
-        label.add(txt_to_add);
-
-    }
-    public static void add_label(JLabel label_to_add, JLabel label, String text, int x, int y, int width, int height){
-        label_to_add.setBounds(x,y,width,height);
-        label_to_add.setText(text);
-        label_to_add.setVisible(true);
-        label_to_add.setOpaque(true);
-        label.add(label_to_add);
-
-    }
     public static void add_scroll_pane(JScrollPane scroll_pane_to_add, JPanel panel){
         scroll_pane_to_add.setVisible(true);
         scroll_pane_to_add.setOpaque(true);
         panel.add(scroll_pane_to_add);
-    }
-
-    public static int getUser_id() {
-        return user_id;
-    }
-
-    public static JFrame getROOT() {
-        return ROOT;
     }
 }

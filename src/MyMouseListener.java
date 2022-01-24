@@ -4,8 +4,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class MyMouseListener implements MouseListener {
-    private JLabel label;
-    private Cell cell;
+    private final JLabel label;
+    private final Cell cell;
     private Mill_Interface mill_interface;
 
     public MyMouseListener(JLabel label, Cell cell){
