@@ -153,7 +153,7 @@ public class Logic {
                         p1.take_stone(c);
                         p2.setStones_in_game(p2.getStones_in_game() - 1);
                         //isMill = false;
-                    }else{
+                    }else if (!is_mill(c) || only_mills_in_game(p1, cell_player_color)) {
                         p2.take_stone(c);
                         p1.setStones_in_game(p1.getStones_in_game() - 1);
                         //isMill = false;
@@ -163,7 +163,7 @@ public class Logic {
                         p2.take_stone(c);
                         p1.setStones_in_game(p1.getStones_in_game() - 1);
                         //isMill = false;
-                    }else{
+                    }else if (!is_mill(c) || only_mills_in_game(p2, cell_player_color)){
                         p1.take_stone(c);
                         p2.setStones_in_game(p2.getStones_in_game() - 1);
                         //isMill = false;
@@ -289,16 +289,10 @@ public class Logic {
         for (char c : gs) {
             if (c == 'n') continue;
             if (c == 'w' && p.getColor().equals("white")) {
-                int[] tmp = cells[i].getNeighbors();
-                for (int t : tmp) {
-                    if (gs[t]!='w') return false;
-                }
+                if (!is_mill(cells[i])) return false;
             }
             if (c == 'b' && p.getColor().equals("black")) {
-                int[] tmp = cells[i].getNeighbors();
-                for (int t : tmp) {
-                    if (gs[t]!='b') return false;
-                }
+                if (!is_mill(cells[i])) return false;
             }
             i++;
         }
@@ -323,23 +317,21 @@ public class Logic {
         String[] ls = c.getLines();
         for (String line : ls){
             int m = 0;
+            System.out.println("m=0");
             for (Cell cell : cells){
-                System.out.println(Arrays.toString(cell.getLines()));
-                System.out.println(cell.getLines()[0]);
-                System.out.println(c.getLines()[0]);
-                System.out.println(Arrays.toString(c.getLines()));
-                System.out.println(line);
                 if (cell.getLines()[0].equals(line) || cell.getLines()[1].equals(line)){
                     if (gs[cell.getId()]==gs[c.getId()]){
                         System.out.println("Cell num " + cell.getId() + ": " + gs[cell.getId()]);
-                        System.out.println("Cell num " + c.getId() + ": " + gs[c.getId()]);
                         m++;
                     }
                 }
             }
-            if (m==3) return true;
+            if (m==3) {
+                System.out.println("its in a mill " + c.getId());
+                return true;
+            }
         }
-
+        System.out.println("its not in a mill " + c.getId());
         return false;
     }
 
