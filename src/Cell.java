@@ -9,7 +9,7 @@ public class Cell {
     private String[] lines; // lines of the rects
     private String color_of_player;
 
-    private final JLabel label = new JLabel();
+    private final JLabel label = new JLabel("", SwingConstants.CENTER);
 
     public Cell(int id) {
         this.id = id;

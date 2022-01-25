@@ -23,6 +23,7 @@ class Client {
     private static BufferedReader in;
     private static boolean should_receive = true;
     private static final Mill_Interface mill_interface = new Mill_Interface();
+    private static String current_game_state;
 
     Client() {
     }
@@ -107,6 +108,7 @@ class Client {
     // INTERPRET DATA FROM CH //
     public static void interpret_incoming_data(String data){
         System.out.println(data);
+        current_game_state = data;
 
         int i = 0;
         for (char ch : data.toCharArray()) {
@@ -114,5 +116,7 @@ class Client {
             i++;
         }
     }
+
+
 
 }
