@@ -153,19 +153,11 @@ public class Logic {
                         p1.take_stone(c);
                         p2.setStones_in_game(p2.getStones_in_game() - 1);
                         //isMill = false;
-                    }else if (!is_mill(c) || only_mills_in_game(p1, cell_player_color)) {
-                        p2.take_stone(c);
-                        p1.setStones_in_game(p1.getStones_in_game() - 1);
-                        //isMill = false;
                     }
                 } else {
                     if (!is_mill(c) || only_mills_in_game(p1, cell_player_color)) {
                         p2.take_stone(c);
                         p1.setStones_in_game(p1.getStones_in_game() - 1);
-                        //isMill = false;
-                    }else if (!is_mill(c) || only_mills_in_game(p2, cell_player_color)){
-                        p1.take_stone(c);
-                        p2.setStones_in_game(p2.getStones_in_game() - 1);
                         //isMill = false;
                     }
                 }
@@ -287,11 +279,17 @@ public class Logic {
         char[] gs = game_state.toCharArray();
         int i = 0;
         for (char c : gs) {
-            if (c == 'n') continue;
+            System.out.println("id: " + i + " " + c);
+            if (c == 'n') {
+                i++;
+                continue;
+            }
             if (c == 'w' && p.getColor().equals("white")) {
+                System.out.println(game_state + " i am b");
                 if (!is_mill(cells[i])) return false;
             }
             if (c == 'b' && p.getColor().equals("black")) {
+                System.out.println(game_state + " i am w");
                 if (!is_mill(cells[i])) return false;
             }
             i++;
