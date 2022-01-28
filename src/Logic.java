@@ -382,6 +382,7 @@ public class Logic {
         for (int tmp_neigbor : cell.getNeighbors()){ // schaut alle nachbarn von cell_to_check an
             if (cell_to_check != null){
                 if (tmp_neigbor == cell_to_check.getId()) { // cell_to_chek ist in nachbarn mit drin
+
                     return true;
                 }
             }
