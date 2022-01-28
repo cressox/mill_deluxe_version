@@ -4,7 +4,7 @@
 
 ### IMPORTANT TO RUN THE PROGRAMM #
 # 1. use init_db to initalize the database
-# 2. add the jdbc-driver (src/Driver) to global path variables
+# 2. add the jdbc-driver (https://dev.mysql.com/downloads/connector/j/) to global path variables
 # 3. run the server.java #
 # 4. run the client.java #
 
